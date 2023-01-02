@@ -1,4 +1,14 @@
-# The In-Ear Graphing Library
+# The In-Ear Graphing Library Rails App
+
+* Ruby version
+* System dependencies
+* Configuration
+* Database creation
+* Database initialization
+* How to run the test suite
+* Services (job queues, cache servers, search engines, etc.)
+* Deployment instructions
+* ...
 
 If you're not weirdly obsessed with headphones you can leave at any time.
 
