@@ -1,0 +1,16 @@
+<!DOCTYPE html>
+<html>
+  <%= render "layouts/partials/header" %>
+  <body>
+    <div class="wrapper_content">
+      <header>
+        <%= render "layouts/partials/navbar" %>
+      </header>
+
+      <div class="container">
+        <%= render partial: "layouts/partials/notifications", locals: {notice:, alert:} %>
+        <%= yield %>
+      </div>
+    </div>
+  </body>
+</html>

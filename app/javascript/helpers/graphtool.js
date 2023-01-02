@@ -1,3 +1,8 @@
+import saveSvgAsPng from "save-svg-as-png";
+import * as d3 from "d3";
+
+import "./config";
+
 let doc = d3.select(".graphtool");
 doc.html(`
   <svg style="display: none;">
