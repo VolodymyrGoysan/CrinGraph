@@ -10,6 +10,11 @@
         <%= f.email_field :email, autofocus: true, autocomplete: "email", class: 'form-control' %>
       </div>
 
+      <div class="mb-3">
+        <%= f.label :username, class: "form-label" %>
+        <%= f.text_field :username, autocomplete: "username", class: 'form-control' %>
+      </div>
+
       <div class="row mb-4">
         <div class="col">
           <%= f.label :password, class: "form-label" %>

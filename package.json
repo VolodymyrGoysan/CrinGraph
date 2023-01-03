@@ -5,6 +5,7 @@
     "@hotwired/stimulus": "^3.2.1",
     "@hotwired/turbo-rails": "^7.2.4",
     "@popperjs/core": "^2.11.6",
+    "@rails/actiontext": "^7.0.4",
     "bootstrap": "^5.2.3",
     "bootstrap-icons": "^1.10.3",
     "d3": "^7.8.0",
@@ -12,7 +13,8 @@
     "esbuild": "^0.16.12",
     "fuse": "^0.4.0",
     "sass": "^1.57.1",
-    "save-svg-as-png": "^1.4.17"
+    "save-svg-as-png": "^1.4.17",
+    "trix": "^2.0.4"
   },
   "scripts": {
     "build": "esbuild app/javascript/*.* --bundle --sourcemap --outdir=app/assets/builds --public-path=assets",
