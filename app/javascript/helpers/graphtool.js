@@ -1,237 +1,59 @@
 import saveSvgAsPng from "save-svg-as-png";
 import * as d3 from "d3";
 
-import "./config";
+import { select, selection as d3selection } from 'd3-selection';
 
-let doc = d3.select(".graphtool");
-// doc.html(`
-//   <svg style="display: none;">
-//     <defs>
-//       <g id="baseline-icon" text-anchor="middle" font-size="100px" fill="currentColor">
-//         <text dominant-baseline="central" y="-57">BASE</text>
-//         <text dominant-baseline="central" y="57">-LINE</text>
-//       </g>
-//       <g id="hide-icon">
-//         <path d="M2 6Q7 0 12 6Q7 12 2 6Z" stroke-width="1" stroke="currentColor" fill="none"/>
-//         <circle cx="7" cy="6" r="2" stroke="none" fill="currentColor"/>
-//         <line stroke-width="1" x1="4.4" y1="10.3" x2="10.4" y2="2.3" class="keyBackground"/>
-//         <line stroke-width="1" x1="3.6" y1= "9.7" x2= "9.6" y2="1.7" stroke="currentColor"/>
-//       </g>
-//       <g id="pin-icon" text-anchor="middle" font-size="100px" fill="currentColor">
-//         <text dominant-baseline="central">
-//           PIN
-//         </text>
-//       </g>
-//     </defs>
-//   </svg>
+const getFunction = type => function(data) {
+	if (typeof data === 'function') {
+		return this.each(function () {
+			let cur = select(this),
+				obj = data.apply(this, arguments);
 
-//   <main class="main">
-//     <section class="parts-primary">
-//     <div class="graphBox" data-sticky-graph="`+ alt_sticky_graph +`" data-animated="`+ alt_animated +`">
-//       <div class="graph-sizer">
-//         <svg id="fr-graph" viewBox="0 0 800 346" data-labels-position="`+ labelsPosition +`"></svg>
-//       </div>
+			for (let attrName in obj) cur[type](attrName, obj[attrName]);
+		});
+	}
 
-//       <div class="tools collapseTools">
-//         <div class="copy-url">
-//           <button id="copy-url">Copy URL</button>
-//           <button id="download-faux">Screenshot</button>
-//         </div>
+	for (let attrName in data)
+		this[type](attrName, data[attrName]);
 
-//         <div class="zoom">
-//           <span>Zoom:</span>
-//           <button>Bass</button>
-//           <button>Mids</button>
-//           <button>Treble</button>
-//         </div>
+	return this;
+}
 
-//         <div class="normalize">
-//           <span>Normalize:</span>
-//           <div>
-//             <input type="number" inputmode="decimal" id="norm-phon" required min="0" max="100" value="`+ default_norm_db +`" step="1" onclick="this.focus();this.select()"></input>
-//             <span>dB</span>
-//           </div>
-//           <div>
-//             <input type="number" inputmode="decimal" id="norm-fr" required min="20" max="20000" value="`+ default_norm_hz +`" step="1" onclick="this.focus();this.select()"></input>
-//             <span>Hz</span>
-//           </div>
-//           <span class="helptip">
-//             ?<span>Choose a dB value to normalize to a target listening level, or a Hz value to make all curves match at that frequency.</span>
-//           </span>
-//         </div>
+d3selection.prototype.attrs = getFunction('attr');
+d3selection.prototype.styles = getFunction('style');
 
-//         <div class="smooth">
-//           <span>Smooth:</span>
-//           <input type="number" inputmode="decimal" id="smooth-level" required min="0" value="5" step="any" onclick="this.focus();this.select()"></input>
-//         </div>
+// import "./config";
 
-//         <div class="miscTools">
-//           <button id="inspector"><span>╞</span> inspect</button>
-//           <button id="label"><span>▭</span> label</button>
-//           <button id="download"><span><u>⇩</u></span> screenshot</button>
-//           <button id="recolor"><span>○</span> recolor</button>
-//         </div>
+let doc = d3selection(".graphtool");
+const root = e = document.getElementsByClassName("graphtool")[0];
+const config = JSON.parse(root.dataset.config);
+const targets = [];
 
-//         <div class="expand-collapse">
-//             <button id="expand-collapse"></button>
-//         </div>
+const max_compare = config.restricted ? 2 : null;
+const restrict_target = !config.restricted;
+const disallow_target = config.restricted;
+const premium_html = config.restricted ? "<h2>You gonna pay for that?</h2><p>To use target curves, or more than two graphs, <a target='_blank' href='https://crinacle.com/wp-login.php?action=register'>subscribe</a> or upgrade to Patreon <a target='_blank' href='https://www.patreon.com/join/crinacle/checkout?rid=3775534'>Silver tier</a> and switch to <a target='_blank' href='https://crinacle.com/graphs/iems/graphtool/premium/'>the premium tool</a>.</p>" : "";
 
-//         <svg id="expandTools" viewBox="0 0 14 12">
-//           <path d="M2 2h10M2 6h10M2 10h10" stroke-width="2px" stroke="#878156"    stroke-linecap="round" transform="translate(0,0.3)"/>
-//           <path d="M2 2h10M2 6h10M2 10h10" stroke-width="2px" stroke="currentColor" stroke-linecap="round"/>
-//         </svg>
-//       </div>
-//     </div>
-
-//       <div class="manage">
-//         <table class="manageTable">
-//           <colgroup>
-//             <col class="remove">
-//             <col class="phoneId">
-//             <col class="key">
-//             <col class="calibrate">
-//             <col class="baselineButton">
-//             <col class="hideButton">
-//             <col class="lastColumn">
-//           </colgroup>
-//           <tbody class="curves"></tbody>
-//           <tr class="addPhone">
-//             <td class="addButton">⊕</td>
-//             <td class="helpText" colspan="5">(or middle/ctrl-click when selecting; or pin other IEMs)</td>
-//             <td class="addLock">LOCK</td>
-//           </tr>
-//           <tr class="mobile-helper"></tr>
-//         </table>
-//       </div>
-
-//       <div class="accessories"></div>
-
-//       <div class="external-links"></div>
-//     </section>
-
-//     <section class="parts-secondary">
-//       <div class="controls">
-//         <div class="select" data-selected="models">
-//           <div class="selector-tabs">
-//             <button class="brands" data-list="brands">Brands</button>
-//             <button class="models" data-list="models">Models</button>
-//             <button class="extra">Equalizer</button>
-//           </div>
-
-//           <div class="selector-panel">
-//             <input class="search" type="text" inputmode="search" placeholder="Search" onclick="this.focus();this.select()"/>
-
-//             <svg class="chevron" viewBox="0 0 12 8" preserveAspectRatio="none">
-//               <path d="M0 0h4c0 1.5,5 3,7 4c-2 1,-7 2.5,-7 4h-4c0 -3,4 -3,4 -4s-4 -1,-4 -4"/>
-//             </svg>
-//             <svg class="stop" viewBox="0 0 4 1">
-//               <path d="M4 1H0C3 1 3.2 0.8 4 0Z"/>
-//             </svg>
-
-//             <div class="scroll-container">
-//               <div class="scrollOuter" data-list="brands"><div class="scroll" id="brands"></div></div>
-//               <div class="scrollOuter" data-list="models"><div class="scroll" id="phones"></div></div>
-//             </div>
-//           </div>
-
-//           <div class="extra-panel" style="display: none;">
-//             <div class="extra-upload">
-//               <h5>Uploading</h2>
-//               <button class="upload-fr">Upload FR</button>
-//               <button class="upload-target">Upload Target</button>
-//               <br />
-//               <span><small>Uploaded data will not be persistent</small></span>
-//               <form style="display:none"><input type="file" id="file-fr" accept=".csv,.txt" /></form>
-//             </div>
-//             <div class="extra-eq">
-//               <h5>Parametric Equalizer</h2>
-//               <div class="select-eq-phone">
-//                 <select name="phone">
-//                     <option value="" selected>Choose EQ model</option>
-//                 </select>
-//               </div>
-//               <div class="filters-header">
-//                 <span>Type</span>
-//                 <span>Frequency</span>
-//                 <span>Gain</span>
-//                 <span>Q</span>
-//               </div>
-//               <div class="filters">
-//                 <div class="filter">
-//                     <span>
-//                       <input name="enabled" type="checkbox" checked></input>
-//                       <select name="type">
-//                         <option value="PK" selected>PK</option>
-//                         <option value="LSQ">LSQ</option>
-//                         <option value="HSQ">HSQ</option>
-//                       </select>
-//                     </span>
-//                     <span><input name="freq" type="number" min="20" max="20000" step="1" value="0"></input></span>
-//                     <span><input name="gain" type="number" min="-40" max="40" step="0.1" value="0"></input></span>
-//                     <span><input name="q" type="number" min="0" max="10" step="0.1" value="0"></input></span>
-//                 </div>
-//               </div>
-//               <div class="settings-row">
-//                 <span>AutoEQ Range</span>
-//                 <span><input name="autoeq-from" type="number" min="20" max="20000" step="1" value="20"></input></span>
-//                 <span><input name="autoeq-to" type="number" min="20" max="20000" step="1" value="20000"></input></span>
-//               </div>
-//               <div class="filters-button">
-//                 <button class="add-filter">＋</button>
-//                 <button class="remove-filter">－</button>
-//                 <button class="sort-filters">Sort</button>
-//                 <button class="autoeq">AutoEQ</button>
-//                 <button class="import-filters">Import</button>
-//                 <button class="export-filters">Export</button>
-//                 <button class="export-graphic-filters">Export: Graphic EQ / Wavelet</button>
-//                 <button class="export-filters-qudelix">Export: Qudelix</button>
-//                 <button class="readme">Readme</button>
-//               </div>
-//               <a style="display: none" id="file-filters-export"></a>
-//               <form style="display:none"><input type="file" id="file-filters-import" accept=".txt" /></form>
-//             </div>
-//             <div class="extra-tone-generator">
-//               <h5>Tone Generator</h2>
-//               <div class="settings-row">
-//                 <span>Freq Range</span>
-//                 <span><input name="tone-generator-from" type="number" min="20" max="20000" step="1" value="20"></input></span>
-//                 <span><input name="tone-generator-to" type="number" min="20" max="20000" step="1" value="20000"></input></span>
-//               </div>
-//               <div><input name="tone-generator-freq" type="range" min="0" max="1" step="0.0001" value="0" /></div>
-//               <div>
-//                 <button class="play">Play</button>
-//                 <span>Frequency: <span class="freq-text">20</span> Hz</span>
-//               </div>
-//             </div>
-//           </div>
-//         </div>
-//       </div>
-//     </section>
-//     <div style="display: none" class="extra-eq-overlay">AutoEQ is running, it could take 5~20 seconds or more.</div>
-//   </main>
-// `);
-
-
-let pad = { l:15, r:15, t:10, b:36 };
-let W0 = 800, W = W0 - pad.l - pad.r,
-    H0 = 360, H = H0 - pad.t - pad.b;
+let padding = { left: 15, right: 15, top: 10, bottom: 36 };
+let W0 = 800, W = W0 - padding.left - padding.right,
+    H0 = 360, H = H0 - padding.top - padding.bottom;
 
 let gr = doc.select("#fr-graph"),
     defs = gr.append("defs");
 
 
-gr.append("rect").attrs({x:0, y:pad.t-8, width:W0, height:H0-22, rx:4,
+gr.append("rect").attrs({x:0, y:padding.top-8, width:W0, height:H0-22, rx:4,
                          "class":"graphBackground"});
-watermark(gr);
+// watermark(gr);
 
 
 // Scales
 let x = d3.scaleLog()
     .domain([20,20000])
-    .range([pad.l,pad.l+W]);
+    .range([padding.left,padding.left+W]);
 
 let yD = [29.5,85], // Decibels
-    yR = [pad.t+H,pad.t+10];
+    yR = [padding.top+H,padding.top+10];
 let y = d3.scaleLinear().domain(yD).range(yR);
 
 
@@ -266,13 +88,13 @@ function fmtY(ya) {
       .filter(isMinor).attr("display","none");
 }
 let yAxisObj = gr.append("g")
-    .attr("transform", "translate("+(pad.l+W)+",0)")
+    .attr("transform", "translate("+(padding.left+W)+",0)")
     .call(fmtY);
 yAxisObj.insert("text")
     .attr("transform","rotate(-90)")
     .attr("fill","currentColor")
     .attr("text-anchor","end")
-    .attr("y",-W-2).attr("x",-pad.t)
+    .attr("y",-W-2).attr("x",-padding.top)
     .text("dB");
 
 
@@ -307,7 +129,7 @@ defs.append("clipPath").attr("id","x-clip")
     .append("rect").attrs({x:0, y:0, width:W0, height:H0});
 let xAxisObj = gr.append("g")
     .attr("clip-path", "url(#x-clip)")
-    .attr("transform", "translate(0,"+pad.t+")")
+    .attr("transform", "translate(0,"+padding.top+")")
     .call(fmtX);
 
 
@@ -323,7 +145,7 @@ let fW = 7,  // Fade width
 let fade = defs.append("mask")
     .attr("id", "graphFade")
     .attr("maskUnits", "userSpaceOnUse")
-    .append("g").attr("transform", "translate("+pad.l+","+pad.t+")");
+    .append("g").attr("transform", "translate("+padding.left+","+padding.top+")");
 fade.append("rect").attrs({ x:0, y:0, width:W, height:H, fill:"white" });
 let fadeEdge = fade.selectAll().data([0,1]).join("rect")
     .attrs(i=>({ x:i?W-fW:0, width:fW, y:0,height:H, fill:"url(#grad"+i+")" }));
@@ -358,9 +180,9 @@ let dB = {
     y: y(60),
     h: 15,
     H: y(60)-y(70),
-    min: pad.t,
-    max: pad.t+H,
-    tr: _ => "translate("+(pad.l-9)+","+dB.y+")"
+    min: padding.top,
+    max: padding.top+H,
+    tr: _ => "translate("+(padding.left-9)+","+dB.y+")"
 };
 dB.all = gr.append("g").attr("class","dBScaler"),
 dB.trans = dB.all.append("g").attr("transform", dB.tr()),
@@ -395,7 +217,7 @@ function getDrag(fn) {
         .on("end"  ,function(){dB.all.classed("active",false);});
 }
 dB.mid = dB.all.append("rect")
-    .attrs({x:(pad.l-11),y:dB.y-dB.h,width:12,height:2*dB.h,opacity:0})
+    .attrs({x:(padding.left-11),y:dB.y-dB.h,width:12,height:2*dB.h,opacity:0})
     .call(getDrag(function () {
         dB.y = d3.event.y;
         dB.y = Math.min(dB.y, dB.max-dB.h*(dB.H/15));
@@ -566,7 +388,7 @@ function drawLabels() {
         });
     }
     for (let j=curves.length; j<bcurves.length; j++) {
-        tr.push([pad.l+(W-w[j])/2, pad.t+H-h[j]+2]);
+        tr.push([padding.left+(W-w[j])/2, padding.top+H-h[j]+2]);
     }
     g.attr("transform",(_,i)=>"translate("+tr[i].join(",")+")");
     g.attr("opacity",null);
@@ -1138,7 +960,7 @@ function updatePaths(trigger) {
     if (targetDashed) t.style("stroke-dasharray", "6, 3");
     if (targetColorCustom) t.attr("stroke", targetColorCustom);
     if (ifURL && !trigger) addPhonesToUrl();
-    if (stickyLabels) drawLabels();
+    if (config.sticky_labels) drawLabels();
 }
 let colorBar = p=>'url(\'data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 5 8"><path d="M0 8v-8h1c0.05 1.5,-0.3 3,-0.16 5s0.1 2,0.15 3z" fill="'+getBgColor(p)+'"/></svg>\')';
 function updatePhoneTable() {
@@ -1457,9 +1279,9 @@ function range_to_slice(xs, fn) {
     return a => a.slice(Math.max(r[0],0), r[1]+1);
 }
 
-let norm_sel = ( default_normalization.toLowerCase() === "db" ) ? 0:1,
-    norm_fr = default_norm_hz,
-    norm_phon = default_norm_db;
+let norm_sel = (config.notmalization_type.toLowerCase() === "db" ) ? 0 : 1,
+    norm_fr = config.normalization_hz,
+    norm_phon = config.normalization_db;
 
 function normalizePhone(p) {
     if (norm_sel) { // fr
@@ -1671,8 +1493,11 @@ function asPhoneObj(b, p, isInit, inits) {
     return r;
 }
 
-d3.json(typeof PHONE_BOOK !== "undefined" ? PHONE_BOOK
-            : DIR+"phone_book.json?"+ new Date().getTime()).then(function (brands) {
+// d3
+// 	.json(typeof PHONE_BOOK !== "undefined" ? PHONE_BOOK : DIR+"phone_book.json?"+ new Date().getTime())
+// 	.then(function () {
+(() => {
+		let brands = [];
     let brandMap = window.brandMap = {},
         inits = [],
         initReq = typeof init_phones !== "undefined" ? init_phones : false;
@@ -1775,7 +1600,7 @@ d3.json(typeof PHONE_BOOK !== "undefined" ? PHONE_BOOK
         });
     }
 
-    inits.map(p => p.copyOf ? showVariant(p.copyOf, p, initMode)
+    inits.filter(Boolean).map(p => p.copyOf ? showVariant(p.copyOf, p, initMode)
                             : showPhone(p,0,1, initMode));
 
     function setBrand(b, exclusive) {
@@ -1805,53 +1630,53 @@ d3.json(typeof PHONE_BOOK !== "undefined" ? PHONE_BOOK
         brandSel.classed("active", br => br.active);
     }
 
-    let phoneSearch = new Fuse(
-        allPhones,
-        {
-            shouldSort: false,
-            tokenize: true,
-            threshold: 0.2,
-            minMatchCharLength: 2,
-            keys: [
-                {weight:0.3, name:"dispBrand"},
-                {weight:0.1, name:"brand.suffix"},
-                {weight:0.6, name:"phone"}
-            ]
-        }
-    );
-    let brandSearch = new Fuse(
-        brands,
-        {
-            shouldSort: false,
-            tokenize: true,
-            threshold: 0.05,
-            minMatchCharLength: 3,
-            keys: [
-                {weight:0.9, name:"name"},
-                {weight:0.1, name:"suffix"},
-            ]
-        }
-    );
-    doc.select(".search").on("input", function () {
-        //d3.select(this).attr("placeholder",null);
-        let fn, bl = brands;
-        let c = currentBrands;
-        let test = p => c.indexOf(p.brand )!==-1
-                     || c.indexOf(p.collab)!==-1;
-        if (this.value.length > 1) {
-            let s = phoneSearch.search(this.value),
-                t = c.length ? s.filter(test) : s;
-            if (t.length) s = t;
-            fn = p => s.indexOf(p)!==-1;
-            let b = brandSearch.search(this.value);
-            if (b.length) bl = b;
-        } else {
-            fn = c.length ? test : (p=>true);
-        }
-        let phoneSel = doc.select("#phones").selectAll("div.phone-item");
-        phoneSel.style("display", p => fn(p)?null:"none");
-        brandSel.style("display", b => bl.indexOf(b)!==-1?null:"none");
-    });
+    // let phoneSearch = new Fuse(
+    //     allPhones,
+    //     {
+    //         shouldSort: false,
+    //         tokenize: true,
+    //         threshold: 0.2,
+    //         minMatchCharLength: 2,
+    //         keys: [
+    //             {weight:0.3, name:"dispBrand"},
+    //             {weight:0.1, name:"brand.suffix"},
+    //             {weight:0.6, name:"phone"}
+    //         ]
+    //     }
+    // );
+    // let brandSearch = new Fuse(
+    //     brands,
+    //     {
+    //         shouldSort: false,
+    //         tokenize: true,
+    //         threshold: 0.05,
+    //         minMatchCharLength: 3,
+    //         keys: [
+    //             {weight:0.9, name:"name"},
+    //             {weight:0.1, name:"suffix"},
+    //         ]
+    //     }
+    // );
+
+    // doc.select(".search").on("input", function () {
+    //     let fn, bl = brands;
+    //     let c = currentBrands;
+    //     let test = p => c.indexOf(p.brand )!==-1
+    //                  || c.indexOf(p.collab)!==-1;
+    //     if (this.value.length > 1) {
+    //         let s = phoneSearch.search(this.value),
+    //             t = c.length ? s.filter(test) : s;
+    //         if (t.length) s = t;
+    //         fn = p => s.indexOf(p)!==-1;
+    //         let b = brandSearch.search(this.value);
+    //         if (b.length) bl = b;
+    //     } else {
+    //         fn = c.length ? test : (p=>true);
+    //     }
+    //     let phoneSel = doc.select("#phones").selectAll("div.phone-item");
+    //     phoneSel.style("display", p => fn(p)?null:"none");
+    //     brandSel.style("display", b => bl.indexOf(b)!==-1?null:"none");
+    // });
 
     doc.select("#recolor").on("click", function () {
         allPhones.forEach(p => { if (!p.isTarget) { delete p.id; } });
@@ -1863,14 +1688,14 @@ d3.json(typeof PHONE_BOOK !== "undefined" ? PHONE_BOOK
     doc.select("#theme").on("click", function () {
         themeChooser("change");
     });
-});
+})();
 
 let pathHoverTimeout;
 function pathHL(c, m, imm) {
     gpath.selectAll("path").classed("highlight", c ? d=>d===c   : false);
     table.selectAll("tr")  .classed("highlight", c ? p=>p===c.p : false);
     if (pathHoverTimeout) { clearTimeout(pathHoverTimeout); }
-    if(!stickyLabels) {
+    if(!config.sticky_labels) {
         clearLabels();
         pathHoverTimeout =
             imm ? pathTooltip(c, m) :
@@ -1885,7 +1710,7 @@ function pathTooltip(c, m) {
         .attrs({x:m[0], y:m[1]-6, fill:getTooltipColor(c)})
         .text(t=>t);
     let b = t.node().getBBox(),
-        o = pad.l+W - b.width;
+        o = padding.left+W - b.width;
     if (o < b.x) { t.attr("x",o); b.x=o; }
     // Background
     g.insert("rect", "text")
@@ -1905,7 +1730,7 @@ let graphInteract = imm => function () {
         ind -= sel;
         function init(e) {
             e.attr("class","inspector");
-            e.append("line").attrs({x1:0,x2:0, y1:pad.t,y2:pad.t+H});
+            e.append("line").attrs({x1:0,x2:0, y1:padding.top,y2:padding.top+H});
             e.append("text").attr("class","insp_dB").attr("x",2);
         }
         let insp = gr.selectAll(".inspector").data([xv])
@@ -1973,7 +1798,7 @@ let graphInteract = imm => function () {
 }
 function stopInspect() { gr.selectAll(".inspector").remove(); }
 gr.append("rect")
-    .attrs({x:pad.l,y:pad.t,width:W,height:H,opacity:0})
+    .attrs({x:padding.left,y:padding.top,width:W,height:H,opacity:0})
     .on("mousemove", graphInteract())
     .on("mouseout", ()=>interactInspect?stopInspect():pathHL(false))
     .on("click", graphInteract(true));
@@ -2042,7 +1867,7 @@ function themeChooser(command) {
         }
     }
 }
-if ( darkModeButton ) {
+if ( config.dark_mode_allowed ) {
     let themeButton = document.createElement("button"),
         miscTools = document.querySelector("div.miscTools");
         
@@ -2258,19 +2083,19 @@ blurFocus();
 
 // Add extra feature
 function addExtra() {
-    let extraButton = document.querySelector("div.select > div.selector-tabs > button.extra");
-    // Disable functions by config
-    if (!extraEnabled) {
-        extraButton.remove();
-        return;
-    }
-    if (!extraUploadEnabled) {
+		let extraButton = document.querySelector("div.select > div.selector-tabs > button.extra");
+		// Disable functions by config
+		if (!config.upload_fr_enabled && !config.upload_target_enabled && !config.eq_enabled) {
+				extraButton.remove();
+				return;
+		}
+		if (!config.upload_fr_enabled) {
         document.querySelector("div.extra-panel > div.extra-upload").style["display"] = "none";
     }
-    if (!extraEQEnabled) {
+		if (!config.eq_enabled) {
         document.querySelector("div.extra-panel > div.extra-eq").style["display"] = "none";
     }
-    if (!extraToneGeneratorEnabled) {
+		if (!config.tone_generator_enabled) {
         document.querySelector("div.extra-panel > div.extra-tone-generator").style["display"] = "none";
     }
     // Show and hide extra panel
@@ -2364,7 +2189,7 @@ function addExtra() {
     let fileFiltersImport = document.querySelector("#file-filters-import");
     let filterEnabledInput, filterTypeSelect,
         filterFreqInput, filterQInput, filterGainInput;
-    let eqBands = extraEQBands;
+		let eqBands = config.eq_bands_default;
     let updateFilterElements = () => {
         let node = filtersContainer.querySelector("div.filter");
         while (filtersContainer.childElementCount < eqBands) {
@@ -2412,7 +2237,7 @@ function addExtra() {
             filtersCopy.push({ type: "PK", freq: 0, q: 0, gain: 0 });
         }
         if (filtersCopy.length > eqBands) {
-            eqBands = Math.min(filtersCopy.length, extraEQBandsMax);
+						eqBands = Math.min(filtersCopy.length, cofig.eq_bands_max);
             filtersCopy = filtersCopy.slice(0, eqBands);
             updateFilterElements();
         }
@@ -2770,7 +2595,7 @@ function addHeader() {
         }
     });
 }
-if (alt_layout && alt_header) { addHeader(); }
+if (config.alt_layout && config.alt_header) { addHeader(); }
 
 // Add external links to bar at bottom of page, if configured
 // function addExternalLinks() {
@@ -2905,7 +2730,7 @@ function addTutorial() {
         });
     });
 }
-if (alt_tutorial) { addTutorial(); }
+if (config.alt_tutorial) { addTutorial(); }
 
 // Set active graph site link
 function setActiveDatabase() {
@@ -2933,10 +2758,10 @@ function toggleExpandCollapse() {
     if ( graphIsIframe) { graphBody.setAttribute("data-graph-frame", "collapsed"); }
     
     
-    if ( graphIsIframe && expandableOnly ) {
-        const expandOnlyMax = ( expandableOnly === true ) ? 1000000:expandableOnly,
-            expandOnlyStyle = document.createElement("style"),
-            expandOnlyCss = `
+    if ( graphIsIframe && config.expandable_only ) {
+        const expandOnlyMax = config.expandable_only === true ? 1000000 : config.expandable_only;
+        const expandOnlyStyle = document.createElement("style");
+        const expandOnlyCss = `
             @media ( max-width: `+ expandOnlyMax +`px ) {
                 body[data-expandable="only"][data-graph-frame="collapsed"] {
                     overflow: hidden;
@@ -3024,14 +2849,14 @@ function toggleExpandCollapse() {
         document.querySelector("body").append(expandOnlyStyle);
         
         graphBody.setAttribute("data-expandable", "only");
-    } else if ( graphIsIframe && expandable ) {
+    } else if ( graphIsIframe && config.expandable ) {
         graphBody.setAttribute("data-expandable", "true");
     }
     
     const parentStyle = window.top.document.createElement("style"),
           parentCss = `
             :root {
-                --header-height: `+ headerHeight +`;
+                --header-height: `+ config.header_height +`;
             }
             
             body[data-graph-frame="expanded"] {
@@ -3108,4 +2933,4 @@ function toggleExpandCollapse() {
         
 }
 
-if ( expandable && accessDocumentTop ) { toggleExpandCollapse(); }
+if ( config.expandable && accessDocumentTop ) { toggleExpandCollapse(); }

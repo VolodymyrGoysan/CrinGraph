@@ -4,4 +4,4 @@ import "@rails/actiontext"
 import * as bootstrap from "bootstrap"
 
 import "./controllers"
-// import "./helpers"
+import "./helpers"
