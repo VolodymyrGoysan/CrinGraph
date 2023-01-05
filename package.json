@@ -6,6 +6,7 @@
     "@hotwired/turbo-rails": "^7.2.4",
     "@popperjs/core": "^2.11.6",
     "@rails/actiontext": "^7.0.4",
+    "@vitejs/plugin-vue": "^4.0.0",
     "bootstrap": "^5.2.3",
     "bootstrap-icons": "^1.10.3",
     "d3": "^7.8.0",
@@ -14,10 +15,14 @@
     "fuse": "^0.4.0",
     "sass": "^1.57.1",
     "save-svg-as-png": "^1.4.17",
-    "trix": "^2.0.4"
+    "trix": "^2.0.4",
+    "vue": "^3.2.45"
   },
   "scripts": {
-    "build": "esbuild app/javascript/*.* --bundle --sourcemap --outdir=app/assets/builds --public-path=assets",
     "build:css": "sass ./app/assets/stylesheets/application.bootstrap.scss:./app/assets/builds/application.css --no-source-map --load-path=node_modules"
+  },
+  "devDependencies": {
+    "vite": "^4.0.0",
+    "vite-plugin-ruby": "^3.1.2"
   }
 }

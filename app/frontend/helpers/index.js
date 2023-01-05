@@ -1,5 +1,4 @@
 // import "./config"
 // import "./config_hp"
-import "./equalizer"
 // import "./listAugment"
 import "./graphtool"
