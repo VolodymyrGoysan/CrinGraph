@@ -4,7 +4,7 @@ https://github.com/jaakkopasanen/AutoEq/blob/master/biquad.py
 https://github.com/mohayonao/biquad-coeffs/tree/master/packages/biquad-coeffs-cookbook
 */
 
-Equalizer = (function() {
+export default function buildEqualizer() {
     let config = {
         // Change sample rate will affect the curve of filters close to nyquist frequency
         // Here I choosed a common used value, but not all DSP software use this sample rate for EQ
@@ -404,5 +404,4 @@ Equalizer = (function() {
         as_graphic_eq,
         autoeq
     }
-})();
-
+};

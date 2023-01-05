@@ -1,7 +1,10 @@
 import saveSvgAsPng from "save-svg-as-png";
 import * as d3 from "d3";
-
 import { select, selection as d3selection } from 'd3-selection';
+import buildEqualizer from "./equalizer";
+// import "./config";
+
+const Equalizer = buildEqualizer();
 
 const getFunction = type => function(data) {
 	if (typeof data === 'function') {
@@ -22,10 +25,8 @@ const getFunction = type => function(data) {
 d3selection.prototype.attrs = getFunction('attr');
 d3selection.prototype.styles = getFunction('style');
 
-// import "./config";
-
 let doc = d3selection(".graphtool");
-const root = e = document.getElementsByClassName("graphtool")[0];
+const root = document.getElementsByClassName("graphtool")[0];
 const config = JSON.parse(root.dataset.config);
 const targets = [];
 
@@ -907,22 +908,22 @@ function setHover(elt, h) {
     elt.on("mouseover", h(true)).on("mouseout", h(false));
 }
 
+let targetWindow = window;
+let accessWindowTop = false;
+
 // See if iframe gets CORS error when interacting with window.top
 try {
-    let emb = window.location.href.includes('embed');
-    
-    accessWindowTop = (window.top.location.href) ? true:false;
-    targetWindow = emb ? window : window.top;
+	accessWindowTop = (window.top.location.href) ? true : false;
+	targetWindow = window.location.href.includes('embed') ? window : window.top;
 } catch {
-    accessWindowTop = false;
-    targetWindow = window;
 }
 
 // See if iframe gets CORS error when interacting with window.top.document
+let accessDocumentTop = false;
+
 try {
-    accessDocumentTop = (window.top.document) ? true:false;
-} catch {
-    accessDocumentTop = false;
+	accessDocumentTop = (window.top.document) ? true : false;
+} catch { 
 }
 
 let ifURL = typeof share_url !== "undefined" && share_url;
@@ -1497,197 +1498,199 @@ function asPhoneObj(b, p, isInit, inits) {
 // 	.json(typeof PHONE_BOOK !== "undefined" ? PHONE_BOOK : DIR+"phone_book.json?"+ new Date().getTime())
 // 	.then(function () {
 (() => {
-		let brands = [];
-    let brandMap = window.brandMap = {},
-        inits = [],
-        initReq = typeof init_phones !== "undefined" ? init_phones : false;
-    loadFromShare = 0;
+	let brands = [];
+	let brandMap = window.brandMap = {};
+	let inits = [];
+	let initReq = typeof init_phones !== "undefined" ? init_phones : false;
+	let loadFromShare = 0;
+	let initMode = "config";
     
-    if (ifURL) {
-        let url = targetWindow.location.href,
-            par = "share=";
-            emb = "embed";
-        baseURL = url.split("?").shift();
-        if (url.includes(par) && url.includes(emb)) {
-            initReq = decodeURIComponent(url.replace(/_/g," ").split(par).pop()).split(",");
-            loadFromShare = 2;
-        } else if (url.includes(par)) {
-            initReq = decodeURIComponent(url.replace(/_/g," ").split(par).pop()).split(",");
-            loadFromShare = 1;
-        }
-    }
-    let isInit = initReq ? f => initReq.indexOf(f) !== -1
-                         : _ => false;
-    
-    if (loadFromShare === 1) {
-        initMode = "share";
-    } else if (loadFromShare === 2) {
-        initMode = "embed";
-    } else {
-        initMode = "config";
-    }
+	if (ifURL) {
+		let url = targetWindow.location.href;
+		let par = "share=";
+		let emb = "embed";
+		baseURL = url.split("?").shift();
 
-    brands.push({ name: "Uploaded", phones: [] });
-    brands.forEach(b => brandMap[b.name] = b);
-    brands.forEach(function (b) {
-        b.active = false;
-        b.phoneObjs = b.phones.map(function (p) {
-            return asPhoneObj(b, p, isInit, inits);
-        });
-    });
+		if (url.includes(par) && url.includes(emb)) {
+			initReq = decodeURIComponent(url.replace(/_/g," ").split(par).pop()).split(",");
+			loadFromShare = 2;
+		} else if (url.includes(par)) {
+			initReq = decodeURIComponent(url.replace(/_/g," ").split(par).pop()).split(",");
+			loadFromShare = 1;
+		}
+	}
+	
+	let isInit = (f) => initReq ? (initReq.indexOf(f) !== -1) : false;
+	
+	if (loadFromShare === 1) {
+		initMode = "share";
+	} else if (loadFromShare === 2) {
+		initMode = "embed";
+	} else {
+		initMode = "config";
+	}
 
-    let allPhones = window.allPhones = d3.merge(brands.map(b=>b.phoneObjs)),
-        currentBrands = [];
-    if (!initReq) inits.push(allPhones[0]);
+	brands.push({ name: "Uploaded", phones: [] });
+	brands.forEach(b => brandMap[b.name] = b);
+	brands.forEach(function (b) {
+			b.active = false;
+			b.phoneObjs = b.phones.map(function (p) {
+					return asPhoneObj(b, p, isInit, inits);
+			});
+	});
 
-    function setClicks(fn) { return function (elt) {
-        elt .on("mousedown", () => d3.event.preventDefault())
-            .on("click", p => fn(p,!d3.event.ctrlKey))
-            .on("auxclick", p => d3.event.button===1 ? fn(p,0) : 0);
-    }; }
+	let allPhones = window.allPhones = d3.merge(brands.map(b=>b.phoneObjs)),
+			currentBrands = [];
+	if (!initReq) inits.push(allPhones[0]);
 
-    let brandSel = doc.select("#brands").selectAll()
-        .data(brands).join("div")
-        .text(b => b.name + (b.suffix?" "+b.suffix:""))
-        .call(setClicks(setBrand));
+	function setClicks(fn) { return function (elt) {
+			elt .on("mousedown", () => d3.event.preventDefault())
+					.on("click", p => fn(p,!d3.event.ctrlKey))
+					.on("auxclick", p => d3.event.button===1 ? fn(p,0) : 0);
+	}; }
 
-    let bg = (h,fn) => function (p) {
-        d3.select(this).style("background", fn(p));
-        (p.objs||[p]).forEach(q=>hl(q,h));
-    }
-    window.updatePhoneSelect = () => {
-        doc.select("#phones").selectAll("div.phone-item")
-            .data(allPhones)
-            .join((enter) => {
-                let phoneDiv = enter.append("div")
-                    .attr("class","phone-item")
-                    .attr("name", p=>p.fullName)
-                    .on("mouseover", bg(true, p => getDivColor(p.id===undefined?nextPhoneNumber():p.id, true)))
-                    .on("mouseout" , bg(false,p => p.id!==undefined?getDivColor(p.id,p.active):null))
-                    .call(setClicks(showPhone));
-                phoneDiv.append("span").text(p=>p.fullName);
-                // Adding the + selection button
-                phoneDiv.append("div")
-                    .attr("class", "phone-item-add")
-                    .on("click", p => {
-                        d3.event.stopPropagation();
-                        showPhone(p, 0);
-                    });
-           });
-    };
-    updatePhoneSelect();
+	let brandSel = doc.select("#brands").selectAll()
+			.data(brands).join("div")
+			.text(b => b.name + (b.suffix?" "+b.suffix:""))
+			.call(setClicks(setBrand));
 
-    if (targets) {
-        let b = window.brandTarget = { name:"Targets", active:false },
-            ti = -targets.length,
-            ph = t => ({
-                isTarget:true, brand:b,
-                dispName:t, phone:t, fullName:t+" Target", fileName:t+" Target"
-            });
-        d3.select(".manage").insert("div",".manageTable")
-            .attr("class", "targets collapseTools");
-        let l = (text,c) => s => s.append("div").attr("class","targetLabel").append("span").text(text);
-        let ts = b.phoneObjs = doc.select(".targets").call(l("Targets"))
-            .selectAll().data(targets).join("div").call(l(t=>t.type))
-            .style("flex-grow",t=>t.files.length).attr("class","targetClass")
-            .selectAll().data(t=>t.files.map(ph))
-            .join("div").text(t=>t.dispName).attr("class","target")
-            .call(setClicks(showPhone))
-            .data();
-        ts.forEach((t,i) => {
-            t.id = i-ts.length;
-            if (isInit(t.fileName)) inits.push(t);
-        });
-    }
+	let bg = (h,fn) => function (p) {
+			d3.select(this).style("background", fn(p));
+			(p.objs||[p]).forEach(q=>hl(q,h));
+	}
+	window.updatePhoneSelect = () => {
+			doc.select("#phones").selectAll("div.phone-item")
+					.data(allPhones)
+					.join((enter) => {
+							let phoneDiv = enter.append("div")
+									.attr("class","phone-item")
+									.attr("name", p=>p.fullName)
+									.on("mouseover", bg(true, p => getDivColor(p.id===undefined?nextPhoneNumber():p.id, true)))
+									.on("mouseout" , bg(false,p => p.id!==undefined?getDivColor(p.id,p.active):null))
+									.call(setClicks(showPhone));
+							phoneDiv.append("span").text(p=>p.fullName);
+							// Adding the + selection button
+							phoneDiv.append("div")
+									.attr("class", "phone-item-add")
+									.on("click", p => {
+											d3.event.stopPropagation();
+											showPhone(p, 0);
+									});
+					});
+	};
+	updatePhoneSelect();
 
-    inits.filter(Boolean).map(p => p.copyOf ? showVariant(p.copyOf, p, initMode)
-                            : showPhone(p,0,1, initMode));
+	if (targets) {
+			let b = window.brandTarget = { name:"Targets", active:false },
+					ti = -targets.length,
+					ph = t => ({
+							isTarget:true, brand:b,
+							dispName:t, phone:t, fullName:t+" Target", fileName:t+" Target"
+					});
+			d3.select(".manage").insert("div",".manageTable")
+					.attr("class", "targets collapseTools");
+			let l = (text,c) => s => s.append("div").attr("class","targetLabel").append("span").text(text);
+			let ts = b.phoneObjs = doc.select(".targets").call(l("Targets"))
+					.selectAll().data(targets).join("div").call(l(t=>t.type))
+					.style("flex-grow",t=>t.files.length).attr("class","targetClass")
+					.selectAll().data(t=>t.files.map(ph))
+					.join("div").text(t=>t.dispName).attr("class","target")
+					.call(setClicks(showPhone))
+					.data();
+			ts.forEach((t,i) => {
+					t.id = i-ts.length;
+					if (isInit(t.fileName)) inits.push(t);
+			});
+	}
 
-    function setBrand(b, exclusive) {
-        let phoneSel = doc.select("#phones").selectAll("div.phone-item");
-        let incl = currentBrands.indexOf(b) !== -1;
-        let hasBrand = (p,b) => p.brand===b || p.collab===b;
-        if (exclusive || currentBrands.length===0) {
-            currentBrands.forEach(br => br.active = false);
-            if (incl) {
-                currentBrands = [];
-                phoneSel.style("display", null);
-                phoneSel.select("span").text(p=>p.fullName);
-            } else {
-                currentBrands = [b];
-                phoneSel.style("display", p => hasBrand(p,b)?null:"none");
-                phoneSel.filter(p => hasBrand(p,b)).select("span").text(p=>p.phone);
-            }
-        } else {
-            if (incl) return;
-            if (currentBrands.length === 1) {
-                phoneSel.select("span").text(p=>p.fullName);
-            }
-            currentBrands.push(b);
-            phoneSel.filter(p => hasBrand(p,b)).style("display", null);
-        }
-        if (!incl) b.active = true;
-        brandSel.classed("active", br => br.active);
-    }
+	inits.filter(Boolean).map(p => p.copyOf ? showVariant(p.copyOf, p, initMode)
+													: showPhone(p,0,1, initMode));
 
-    // let phoneSearch = new Fuse(
-    //     allPhones,
-    //     {
-    //         shouldSort: false,
-    //         tokenize: true,
-    //         threshold: 0.2,
-    //         minMatchCharLength: 2,
-    //         keys: [
-    //             {weight:0.3, name:"dispBrand"},
-    //             {weight:0.1, name:"brand.suffix"},
-    //             {weight:0.6, name:"phone"}
-    //         ]
-    //     }
-    // );
-    // let brandSearch = new Fuse(
-    //     brands,
-    //     {
-    //         shouldSort: false,
-    //         tokenize: true,
-    //         threshold: 0.05,
-    //         minMatchCharLength: 3,
-    //         keys: [
-    //             {weight:0.9, name:"name"},
-    //             {weight:0.1, name:"suffix"},
-    //         ]
-    //     }
-    // );
+	function setBrand(b, exclusive) {
+			let phoneSel = doc.select("#phones").selectAll("div.phone-item");
+			let incl = currentBrands.indexOf(b) !== -1;
+			let hasBrand = (p,b) => p.brand===b || p.collab===b;
+			if (exclusive || currentBrands.length===0) {
+					currentBrands.forEach(br => br.active = false);
+					if (incl) {
+							currentBrands = [];
+							phoneSel.style("display", null);
+							phoneSel.select("span").text(p=>p.fullName);
+					} else {
+							currentBrands = [b];
+							phoneSel.style("display", p => hasBrand(p,b)?null:"none");
+							phoneSel.filter(p => hasBrand(p,b)).select("span").text(p=>p.phone);
+					}
+			} else {
+					if (incl) return;
+					if (currentBrands.length === 1) {
+							phoneSel.select("span").text(p=>p.fullName);
+					}
+					currentBrands.push(b);
+					phoneSel.filter(p => hasBrand(p,b)).style("display", null);
+			}
+			if (!incl) b.active = true;
+			brandSel.classed("active", br => br.active);
+	}
 
-    // doc.select(".search").on("input", function () {
-    //     let fn, bl = brands;
-    //     let c = currentBrands;
-    //     let test = p => c.indexOf(p.brand )!==-1
-    //                  || c.indexOf(p.collab)!==-1;
-    //     if (this.value.length > 1) {
-    //         let s = phoneSearch.search(this.value),
-    //             t = c.length ? s.filter(test) : s;
-    //         if (t.length) s = t;
-    //         fn = p => s.indexOf(p)!==-1;
-    //         let b = brandSearch.search(this.value);
-    //         if (b.length) bl = b;
-    //     } else {
-    //         fn = c.length ? test : (p=>true);
-    //     }
-    //     let phoneSel = doc.select("#phones").selectAll("div.phone-item");
-    //     phoneSel.style("display", p => fn(p)?null:"none");
-    //     brandSel.style("display", b => bl.indexOf(b)!==-1?null:"none");
-    // });
+	// let phoneSearch = new Fuse(
+	//     allPhones,
+	//     {
+	//         shouldSort: false,
+	//         tokenize: true,
+	//         threshold: 0.2,
+	//         minMatchCharLength: 2,
+	//         keys: [
+	//             {weight:0.3, name:"dispBrand"},
+	//             {weight:0.1, name:"brand.suffix"},
+	//             {weight:0.6, name:"phone"}
+	//         ]
+	//     }
+	// );
+	// let brandSearch = new Fuse(
+	//     brands,
+	//     {
+	//         shouldSort: false,
+	//         tokenize: true,
+	//         threshold: 0.05,
+	//         minMatchCharLength: 3,
+	//         keys: [
+	//             {weight:0.9, name:"name"},
+	//             {weight:0.1, name:"suffix"},
+	//         ]
+	//     }
+	// );
 
-    doc.select("#recolor").on("click", function () {
-        allPhones.forEach(p => { if (!p.isTarget) { delete p.id; } });
-        phoneNumber = 0; nextPN = null;
-        activePhones.forEach(p => { if (!p.isTarget) { p.id = getPhoneNumber(); } });
-        colorPhones();
-    });
-    
-    doc.select("#theme").on("click", function () {
-        themeChooser("change");
-    });
+	// doc.select(".search").on("input", function () {
+	//     let fn, bl = brands;
+	//     let c = currentBrands;
+	//     let test = p => c.indexOf(p.brand )!==-1
+	//                  || c.indexOf(p.collab)!==-1;
+	//     if (this.value.length > 1) {
+	//         let s = phoneSearch.search(this.value),
+	//             t = c.length ? s.filter(test) : s;
+	//         if (t.length) s = t;
+	//         fn = p => s.indexOf(p)!==-1;
+	//         let b = brandSearch.search(this.value);
+	//         if (b.length) bl = b;
+	//     } else {
+	//         fn = c.length ? test : (p=>true);
+	//     }
+	//     let phoneSel = doc.select("#phones").selectAll("div.phone-item");
+	//     phoneSel.style("display", p => fn(p)?null:"none");
+	//     brandSel.style("display", b => bl.indexOf(b)!==-1?null:"none");
+	// });
+
+	doc.select("#recolor").on("click", function () {
+			allPhones.forEach(p => { if (!p.isTarget) { delete p.id; } });
+			phoneNumber = 0; nextPN = null;
+			activePhones.forEach(p => { if (!p.isTarget) { p.id = getPhoneNumber(); } });
+			colorPhones();
+	});
+	
+	doc.select("#theme").on("click", function () {
+			themeChooser("change");
+	});
 })();
 
 let pathHoverTimeout;
@@ -1891,9 +1894,7 @@ mapDownloadFaux();
 
 // Set focused scroll list
 function setFocusedList(selectedList) {
-    let listsContainer = document.querySelector("div.select");
-
-    listsContainer.setAttribute("data-selected", selectedList)
+	document.querySelector("div.select").setAttribute("data-selected", selectedList)
 }
 
 function focusedListClicks() {
@@ -1923,46 +1924,50 @@ function focusedListClicks() {
 focusedListClicks();
 
 function focusedListSwipes() {
-    let horizontalSwipeTarget = document.querySelector("div.scroll-container"),
-        listsContainer = document.querySelector("div.select"),
-        swipableList = document.querySelector("div.scrollOuter[data-list=\"models\"]");
-    touchDelta = 0;
+  const horizontalSwipeTarget = document.querySelector("div.scroll-container");
+  const listsContainer = document.querySelector("div.select");
+  const swipableList = document.querySelector("div.scrollOuter[data-list=\"models\"]");
+  let touchDelta = 0;
+	let touchStart = 0;
+	let touchNow = 0;
+	let touchDeltaNegative = 0;
     
-    horizontalSwipeTarget.addEventListener("touchstart", function(e) {
-        selectedList = listsContainer.getAttribute("data-selected");
-        touchStart = e.targetTouches[0].screenX;
+	horizontalSwipeTarget.addEventListener("touchstart", function(e) {
+		const selectedList = listsContainer.getAttribute("data-selected");
+		
+		touchStart = e.targetTouches[0].screenX;
 
-        horizontalSwipeTarget.addEventListener("touchmove", function(e) {
-            touchNow = e.targetTouches[0].screenX;
-            touchDelta = touchNow - touchStart,
-            touchDeltaNegative = 0 - touchDelta;
-            
-            if ( selectedList === "models" && touchDelta > 0 && touchDelta < 100 ) {
-                swipableList.setAttribute("style","right: "+ touchDeltaNegative +"px;")
-            }
-            
-            if ( selectedList === "brands" && touchDelta < 0 && touchDelta > -100 ) {
-                swipableList.setAttribute("style","right: "+ touchDeltaNegative +"px;")
-            }
-        });
-    });
+		horizontalSwipeTarget.addEventListener("touchmove", function(e) {
+			touchNow = e.targetTouches[0].screenX;
+			touchDelta = touchNow - touchStart,
+			touchDeltaNegative = 0 - touchDelta;
+			
+			if ( selectedList === "models" && touchDelta > 0 && touchDelta < 100 ) {
+				swipableList.setAttribute("style","right: "+ touchDeltaNegative +"px;")
+			}
+			
+			if ( selectedList === "brands" && touchDelta < 0 && touchDelta > -100 ) {
+				swipableList.setAttribute("style","right: "+ touchDeltaNegative +"px;")
+			}
+		});
+	});
 
-    horizontalSwipeTarget.addEventListener("touchend", function(e) {
-        if ( touchDelta > 49 ) {
-            listsContainer.setAttribute("data-selected","brands");
-        }
+	horizontalSwipeTarget.addEventListener("touchend", function(e) {
+		if ( touchDelta > 49 ) {
+			listsContainer.setAttribute("data-selected","brands");
+		}
 
-        if ( touchDelta < -50 ) {
-            listsContainer.setAttribute("data-selected","models");
-        }
-        
-        swipableList.setAttribute("style","")
-        touchStart = 0;
-        touchNow = 0;
-        touchDelta = 0;
-        
-        //horizontalSwipeTarget.removeEventListener("touchmove");
-    });
+		if ( touchDelta < -50 ) {
+			listsContainer.setAttribute("data-selected","models");
+		}
+		
+		swipableList.setAttribute("style","")
+		touchStart = 0;
+		touchNow = 0;
+		touchDelta = 0;
+		
+		//horizontalSwipeTarget.removeEventListener("touchmove");
+	});
 }
 focusedListSwipes();
 
