@@ -8,21 +8,14 @@
 
   <%= csrf_meta_tags %>
   <%= csp_meta_tag %>
-  <%= vite_client_tag %>
-  <%= vite_javascript_tag "application" %>
-  <%= vite_stylesheet_tag "application.scss" %>
-
-  <% if @current_configuration.alt_layout %>
-    <%= vite_stylesheet_tag "stylesheets/style-alt-theme.css" %>
-    <%= vite_stylesheet_tag "stylesheets/style-alt.css" %>
-  <% else %>
-    <%= vite_stylesheet_tag "stylesheets/style.css" %>
-  <% end %>
+  <%= stylesheet_link_tag "application", "application_bootstrap", "data-turbo-track": "reload" %>
+  <%= stylesheet_link_tag (@current_configuration.alt_layout ? "layouts/alt" : "layouts/default"), "data-turbo-track": "reload" %>
+  <%= javascript_include_tag "application", "data-turbo-track": "reload", defer: true %>
 
   <link rel="icon" type="image/png" sizes="32x32" href="/favicon.png?v=Gv7arLdWjW" />
   <%# <link rel="icon" type="image/png" sizes="32x32" href="/cringraph-favicon.png?v=Gv7arLdWjW" /> %>
-  <link rel="shortcut icon" href="<%= vite_asset_path 'images/favicon.ico?v=Gv7arLdWjW' %>" />
-  <link rel="apple-touch-icon" type="image/png" href="<%= vite_asset_path 'images/cringraph-icon.png?v=Gv7arLdWjW' %>" />
+  <link rel="shortcut icon" href="/favicon.ico?v=Gv7arLdWjW" />
+  <link rel="apple-touch-icon" href="/cringraph-icon.png?v=Gv7arLdWjW" />
 
   <base target="_parent">
 </head>

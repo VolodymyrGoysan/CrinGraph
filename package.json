@@ -6,23 +6,27 @@
     "@hotwired/turbo-rails": "^7.2.4",
     "@popperjs/core": "^2.11.6",
     "@rails/actiontext": "^7.0.4",
-    "@vitejs/plugin-vue": "^4.0.0",
-    "bootstrap": "^5.2.3",
+    "autoprefixer": "^10.4.13",
+    "bootstrap": "5",
     "bootstrap-icons": "^1.10.3",
     "d3": "^7.8.0",
     "d3-selection-multi": "^1.0.1",
     "esbuild": "^0.16.12",
+    "esbuild-plugin-import-glob": "^0.1.1",
+    "esbuild-plugin-inline-image": "^0.0.9",
+    "esbuild-rails": "^1.0.3",
+    "esbuild-sass-plugin": "^2.4.5",
     "fuse": "^0.4.0",
+    "postcss": "^8.4.20",
+    "react": "^17.0.2",
+    "react-dom": "^17.0.2",
+    "react_ujs": "^2.6.1",
     "sass": "^1.57.1",
     "save-svg-as-png": "^1.4.17",
-    "trix": "^2.0.4",
-    "vue": "^3.2.45"
+    "trix": "^2.0.4"
   },
   "scripts": {
-    "build:css": "sass ./app/assets/stylesheets/application.bootstrap.scss:./app/assets/builds/application.css --no-source-map --load-path=node_modules"
-  },
-  "devDependencies": {
-    "vite": "^4.0.0",
-    "vite-plugin-ruby": "^3.1.2"
+    "build": "node esbuild.config.js",
+    "build:css": "sass app/assets/stylesheets/application.bootstrap.scss:app/assets/builds/application_bootstrap.css app/assets/stylesheets/layouts:app/assets/builds/layouts --no-source-map --load-path=node_modules --watch"
   }
 }

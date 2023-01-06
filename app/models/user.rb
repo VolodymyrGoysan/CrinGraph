@@ -21,7 +21,19 @@ class User < ApplicationRecord
   private
 
   def setup_defaul_environment
-    self.configuration = build_configuration
+    self.configuration = Configuration.new(configuration_params)
     self.configuration.external_links = DefaultEnvironmentService.external_links
+  end
+
+  def configuration_params
+    {
+      alt_layout: true,
+      alt_sticky_graph: true,
+      alt_animated: true,
+      alt_header: true,
+      alt_header_new_tab: true,
+      alt_tutorial: true,
+      alt_augment: true
+    }
   end
 end
