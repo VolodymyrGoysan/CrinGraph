@@ -214,50 +214,50 @@ setupGraphAnalytics();
 
 
 // If alt_header is enabled, these are the items added to the header
-let headerLogoText = "CrinGraph",
-    headerLogoImgUrl = "",
-    headerLinks = [
-    {
-        name: "Sample",
-        url: "https://sample.com"
-    }
-];
+// let headerLogoText = "CrinGraph",
+//     headerLogoImgUrl = "",
+//     headerLinks = [
+//     {
+//         name: "Sample",
+//         url: "https://sample.com"
+//     }
+// ];
 
 
-let tutorialDefinitions = [
-    {
-        name: 'Sub bass',
-        width: '20.1%',
-        description: 'Lorem ipsum.'
-    },
-    {
-        name: 'Mid bass',
-        width: '19.2%',
-        description: 'Lorem ipsum.'
-    },
-    {
-        name: 'Lower midrange',
-        width: '17.4%',
-        description: 'Lorem ipsum.'
-    },
-    {
-        name: 'Upper midrange',
-        width: "20%",
-        description: 'Lorem ipsum.'
-    },
-    {
-        name: 'Presence region',
-        width: '6%',
-        description: 'Lorem ipsum.'
-    },
-    {
-        name: 'Mid treble',
-        width: '7.3%',
-        description: 'Lorem ipsum.'
-    },
-    {
-        name: 'Air',
-        width: '10%',
-        description: 'Lorem ipsum.'
-    }
-]
+// let tutorialDefinitions = [
+//     {
+//         name: 'Sub bass',
+//         width: '20.1%',
+//         description: 'Lorem ipsum.'
+//     },
+//     {
+//         name: 'Mid bass',
+//         width: '19.2%',
+//         description: 'Lorem ipsum.'
+//     },
+//     {
+//         name: 'Lower midrange',
+//         width: '17.4%',
+//         description: 'Lorem ipsum.'
+//     },
+//     {
+//         name: 'Upper midrange',
+//         width: "20%",
+//         description: 'Lorem ipsum.'
+//     },
+//     {
+//         name: 'Presence region',
+//         width: '6%',
+//         description: 'Lorem ipsum.'
+//     },
+//     {
+//         name: 'Mid treble',
+//         width: '7.3%',
+//         description: 'Lorem ipsum.'
+//     },
+//     {
+//         name: 'Air',
+//         width: '10%',
+//         description: 'Lorem ipsum.'
+//     }
+// ]

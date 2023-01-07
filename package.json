@@ -10,7 +10,7 @@
     "bootstrap": "5",
     "bootstrap-icons": "^1.10.3",
     "d3": "^7.8.0",
-    "d3-selection-multi": "^1.0.1",
+    "d3-attrs": "^1.0.4",
     "esbuild": "^0.16.12",
     "esbuild-plugin-import-glob": "^0.1.1",
     "esbuild-plugin-inline-image": "^0.0.9",
