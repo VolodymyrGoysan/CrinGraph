@@ -8,6 +8,8 @@ import ExternalLinks from './nested/ExternalLinks';
 import Controls from './nested/Controls';
 
 import useGraphBox from './hooks/useGraphBox';
+import useSwipeEvents from './hooks/useSwipeEvents';
+import usePanelFocusChange from './hooks/usePanelFocus';
 import './styles.scss';
 
 const GraphTool = (props) => {
@@ -47,22 +49,67 @@ const GraphTool = (props) => {
   // eqBandsDefault,
   // eqBandsMax
 
+  const {
+    focusedPanel,
+    focusPrimary,
+    focusSecondary,
+    toggleFocus,
+  } = usePanelFocusChange();
+
+  const {
+    secondaryPanelStyle,
+    handleTouchStart,
+    handleTouchMove,
+    handleTouchEnd,
+    handleWheel,
+  } = useSwipeEvents({
+    focusedPanel,
+    focusPrimary,
+    focusSecondary,
+  });
+
   useGraphBox(props);
 
   return (
     <div className="graphtool">
       <HiddenIcons />
 
-      <main className="main">
+      <main
+        className="main"
+        data-focused-panel={focusedPanel}
+      >
         <section className="parts-primary">
-          <GraphBox {...props} />
-          <ManageTable />
+          <GraphBox
+            altStickyGraph={props.altStickyGraph}
+            altAnimated={props.altAnimated}
+            labelPosition={props.labelPosition}
+            normalizationDb={props.normalizationDb}
+            normalizationHz={props.normalizationHz}
+            darkModeAllowed={props.darkModeAllowed}
+            onGraphBoxClick={toggleFocus}
+            // onDownload={onDownload}
+          />
+
+          <ManageTable
+            onMobileHelperClick={focusSecondary}
+          />
+
           <Accessories />
+          
           <ExternalLinks />
         </section>
 
-        <section className="parts-secondary">
-          <Controls />
+        <section
+          style={secondaryPanelStyle}
+          className="parts-secondary"
+          onClick={() => focusSecondary()}
+        >
+          <Controls
+            handleDraggableTouchStart={handleTouchStart}
+            handleDraggableTouchMove={handleTouchMove}
+            handleDraggableTouchEnd={handleTouchEnd}
+            handleDraggableWheel={handleWheel}
+          />
         </section>
 
         <EqOverlay />

@@ -1,6 +1,8 @@
 import React from 'react';
 
-function ManageTable() {
+function ManageTable({
+  onMobileHelperClick,
+}) {
   return (
     <div className="manage">
       <table className="manageTable">
@@ -22,7 +24,12 @@ function ManageTable() {
             </td>
             <td className="addLock">LOCK</td>
           </tr>
-          <tr className="mobile-helper"></tr>
+          
+          <tr
+            className="mobile-helper"
+            onClick={onMobileHelperClick}
+          >
+          </tr>
         </tbody>
       </table>
     </div>

@@ -21,6 +21,7 @@ require('esbuild').build({
   watch: watch,
   allowOverwrite: true,
   sourcemap: !optimize,
+  loader: { ".js": "jsx" },
   plugins: [
     rails(),
     importGlob(),
