@@ -1,4 +1,5 @@
-import { useState, useRef } from 'react';
+import { useState, useRef, useCallback, useMemo } from 'react';
+import { throttle } from 'lodash';
 import { PANELS } from '../constants';
 
 const MOVING_UP_DELTA = 200;
@@ -14,50 +15,53 @@ export default function useSwipeEvents({
   focusPrimary,
   focusSecondary,
 }) {
-  const touchPositions = useRef(DEFAULT_TOUCH_POSITIONS);
+  const touchPositions = useRef({ ...DEFAULT_TOUCH_POSITIONS });
   const [secondaryPanelStyle, serSecondaryPanelStyle] = useState({});
 
-  const focusedSecondary = () => focusedPanel === PANELS.SECONDARY;
-
-  const movingInRange = (min, max) => (
+  const movingInRange = useCallback((min, max) => (
     touchPositions.current.yDelta > min && touchPositions.current.yDelta < max
-  );
+  ), []);
   
-  const handleTouchStart = (event) => {
+  const handleTouchStart = useCallback((event) => {
     touchPositions.current.yStart = event.targetTouches[0].screenY;
-  };
+  }, []);
 
-  const handleTouchMove = (event) => {
+  const handleTouchMove = useCallback((event) => {
     touchPositions.current.yCurrent = event.targetTouches[0].screenY;
     touchPositions.current.yDelta = touchPositions.current.yCurrent - touchPositions.current.yStart;
 
-    const secondaryPanelMovingUp = focusedSecondary() && movingInRange(0, MOVING_UP_DELTA);
-    const primaryPanelMovingDown = !focusedSecondary() && movingInRange(MOVING_DOWN_DELTA, 0);
+    const focusedSecondary = focusedPanel === PANELS.SECONDARY;
+    const movingDown = focusedSecondary && movingInRange(0, MOVING_UP_DELTA);
+    const movingUp = !focusedSecondary && movingInRange(MOVING_DOWN_DELTA, 0);
 
-    if (secondaryPanelMovingUp || primaryPanelMovingDown) {
+    if (movingDown || movingUp) {
       serSecondaryPanelStyle({ top: touchPositions.current.yDelta });
     }
-  };
+  }, [serSecondaryPanelStyle, movingInRange, focusedPanel]);
 
-  const handleTouchEnd = (_event) => {
+  const throttledTouchMove = useMemo(() => (
+    throttle(handleTouchMove, 30)
+  ), [handleTouchMove]);
+
+  const handleTouchEnd = useCallback(() => {
     if (touchPositions.current.yDelta > 49) focusPrimary();
     if (touchPositions.current.yDelta < -50) focusSecondary();
 
     serSecondaryPanelStyle({});
-    touchPositions.current = DEFAULT_TOUCH_POSITIONS;
-  };
+    touchPositions.current = { ...DEFAULT_TOUCH_POSITIONS };
+  }, [focusPrimary, focusSecondary]);
 
-  const handleWheel = (event) => {
+  const handleWheel = useCallback((event) => {
     const wheelDelta = event.deltaY;
 
     if (wheelDelta < -5) focusPrimary();
     if (wheelDelta > 5) focusSecondary();
-  }
+  }, [focusPrimary, focusSecondary])
 
   return {
     secondaryPanelStyle,
     handleTouchStart,
-    handleTouchMove,
+    handleTouchMove: throttledTouchMove,
     handleTouchEnd,
     handleWheel,
   }

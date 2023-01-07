@@ -1,15 +1,18 @@
 import React from 'react';
+
+import PanelContainer from './nested/PanelContainer';
+import PrimaryPanel from './nested/PrimaryPanel';
+import SecondaryPanel from './nested/secondary-panel';
 import HiddenIcons from './nested/HiddenIcons';
 import EqOverlay from './nested/EqOverlay';
 import GraphBox from './nested/GraphBox';
 import ManageTable from './nested/ManageTable';
 import Accessories from './nested/Accessories';
 import ExternalLinks from './nested/ExternalLinks';
-import Controls from './nested/Controls';
 
 import useGraphBox from './hooks/useGraphBox';
-import useSwipeEvents from './hooks/useSwipeEvents';
 import usePanelFocusChange from './hooks/usePanelFocus';
+
 import './styles.scss';
 
 const GraphTool = (props) => {
@@ -56,29 +59,14 @@ const GraphTool = (props) => {
     toggleFocus,
   } = usePanelFocusChange();
 
-  const {
-    secondaryPanelStyle,
-    handleTouchStart,
-    handleTouchMove,
-    handleTouchEnd,
-    handleWheel,
-  } = useSwipeEvents({
-    focusedPanel,
-    focusPrimary,
-    focusSecondary,
-  });
-
   useGraphBox(props);
 
   return (
     <div className="graphtool">
       <HiddenIcons />
 
-      <main
-        className="main"
-        data-focused-panel={focusedPanel}
-      >
-        <section className="parts-primary">
+      <PanelContainer focusedPanel={focusedPanel}>
+        <PrimaryPanel>
           <GraphBox
             altStickyGraph={props.altStickyGraph}
             altAnimated={props.altAnimated}
@@ -97,23 +85,16 @@ const GraphTool = (props) => {
           <Accessories />
           
           <ExternalLinks />
-        </section>
+        </PrimaryPanel>
 
-        <section
-          style={secondaryPanelStyle}
-          className="parts-secondary"
-          onClick={() => focusSecondary()}
-        >
-          <Controls
-            handleDraggableTouchStart={handleTouchStart}
-            handleDraggableTouchMove={handleTouchMove}
-            handleDraggableTouchEnd={handleTouchEnd}
-            handleDraggableWheel={handleWheel}
-          />
-        </section>
+        <SecondaryPanel
+          focusedPanel={focusedPanel}
+          focusPrimary={focusPrimary}
+          focusSecondary={focusSecondary}
+        />
 
         <EqOverlay />
-      </main>
+      </PanelContainer>
     </div>
   )
 }
