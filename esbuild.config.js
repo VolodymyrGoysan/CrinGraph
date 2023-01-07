@@ -20,7 +20,7 @@ require('esbuild').build({
   minify: optimize,
   watch: watch,
   allowOverwrite: true,
-  // sourcemap: true,
+  sourcemap: !optimize,
   plugins: [
     rails(),
     importGlob(),
