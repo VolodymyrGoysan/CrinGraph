@@ -1,13 +1,18 @@
 import React from 'react';
+
+import PanelContainer from './nested/PanelContainer';
+import PrimaryPanel from './nested/PrimaryPanel';
+import SecondaryPanel from './nested/secondary-panel';
 import HiddenIcons from './nested/HiddenIcons';
 import EqOverlay from './nested/EqOverlay';
 import GraphBox from './nested/GraphBox';
 import ManageTable from './nested/ManageTable';
 import Accessories from './nested/Accessories';
 import ExternalLinks from './nested/ExternalLinks';
-import Controls from './nested/Controls';
 
 import useGraphBox from './hooks/useGraphBox';
+import usePanelFocusChange from './hooks/usePanelFocus';
+
 import './styles.scss';
 
 const GraphTool = (props) => {
@@ -47,26 +52,49 @@ const GraphTool = (props) => {
   // eqBandsDefault,
   // eqBandsMax
 
+  const {
+    focusedPanel,
+    focusPrimary,
+    focusSecondary,
+    toggleFocus,
+  } = usePanelFocusChange();
+
   useGraphBox(props);
 
   return (
     <div className="graphtool">
       <HiddenIcons />
 
-      <main className="main">
-        <section className="parts-primary">
-          <GraphBox {...props} />
-          <ManageTable />
-          <Accessories />
-          <ExternalLinks />
-        </section>
+      <PanelContainer focusedPanel={focusedPanel}>
+        <PrimaryPanel>
+          <GraphBox
+            altStickyGraph={props.altStickyGraph}
+            altAnimated={props.altAnimated}
+            labelPosition={props.labelPosition}
+            normalizationDb={props.normalizationDb}
+            normalizationHz={props.normalizationHz}
+            darkModeAllowed={props.darkModeAllowed}
+            onGraphBoxClick={toggleFocus}
+            // onDownload={onDownload}
+          />
 
-        <section className="parts-secondary">
-          <Controls />
-        </section>
+          <ManageTable
+            onMobileHelperClick={focusSecondary}
+          />
+
+          <Accessories />
+          
+          <ExternalLinks />
+        </PrimaryPanel>
+
+        <SecondaryPanel
+          focusedPanel={focusedPanel}
+          focusPrimary={focusPrimary}
+          focusSecondary={focusSecondary}
+        />
 
         <EqOverlay />
-      </main>
+      </PanelContainer>
     </div>
   )
 }

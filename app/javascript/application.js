@@ -13,4 +13,4 @@ import "@rails/actiontext";
 import "bootstrap";
 
 import "./external_components";
-// import "./helpers";
+

@@ -1,12 +1,26 @@
 import React from 'react';
 
-function Controls() {
+function Controls({
+  handleDraggableTouchStart,
+  handleDraggableTouchMove,
+  handleDraggableTouchEnd,
+  handleDraggableWheel,
+}) {
   return (
     <div className="controls">
-      <div className="select" dataSelected="models">
-        <div className="selector-tabs">
-          <button className="brands" data={{ list: "brands" }}>Brands</button>
-          <button className="models" data={{ list: "models" }}>Models</button>
+      <div
+        className="select"
+        data-selected="models"
+      >
+        <div
+          className="selector-tabs"
+          onTouchStart={handleDraggableTouchStart}
+          onTouchMove={handleDraggableTouchMove}
+          onTouchEnd={handleDraggableTouchEnd}
+          onWheel={handleDraggableWheel}
+        >
+          <button className="brands" data-list="brands">Brands</button>
+          <button className="models" data-list="models">Models</button>
           <button className="extra">Equalizer</button>
         </div>
 
@@ -17,6 +31,10 @@ function Controls() {
             inputMode="search"
             placeholder="Search"
             onClick={console.log}
+            onTouchStart={handleDraggableTouchStart}
+            onTouchMove={handleDraggableTouchMove}
+            onTouchEnd={handleDraggableTouchEnd}
+            onWheel={handleDraggableWheel}
             // onClick="this.focus();this.select()"
           />
 
@@ -29,11 +47,11 @@ function Controls() {
           </svg>
 
           <div className="scroll-container">
-            <div className="scrollOuter" data={{ list: "brands" }}>
+            <div className="scrollOuter" data-list="brands">
               <div className="scroll" id="brands" />
             </div>
             
-            <div className="scrollOuter" data={{ list: "models" }}>
+            <div className="scrollOuter" data-list="models">
               <div className="scroll" id="phones" />
             </div>
           </div>
@@ -63,8 +81,8 @@ function Controls() {
           <div className="extra-eq">
             <h5>Parametric Equalizer</h5>
             <div className="select-eq-phone">
-              <select name="phone">
-                <option value="" selected>Choose EQ model</option>
+              <select name="phone" defaultValue="">
+                <option value="">Choose EQ model</option>
               </select>
             </div>
           
@@ -81,10 +99,11 @@ function Controls() {
                   <input
                     name="enabled"
                     type="checkbox"
-                    checked
+                    onChange={console.log}
+                    defaultChecked
                   />
-                  <select name="type">
-                    <option value="PK" selected>PK</option>
+                  <select name="type" defaultValue="PK">
+                    <option value="PK">PK</option>
                     <option value="LSQ">LSQ</option>
                     <option value="HSQ">HSQ</option>
                   </select>
@@ -97,7 +116,7 @@ function Controls() {
                     min="20"
                     max="20000"
                     step="1"
-                    value="0"
+                    defaultValue="0"
                     onClick={console.log}
                   />
                 </span>
@@ -109,7 +128,7 @@ function Controls() {
                     min="-40"
                     max="40"
                     step="0.1"
-                    value="0"
+                    defaultValue="0"
                     onClick={console.log}
                   />
                 </span>
@@ -121,7 +140,7 @@ function Controls() {
                     min="0"
                     max="10"
                     step="0.1"
-                    value="0"
+                    defaultValue="0"
                     onClick={console.log}
                   />
                 </span>
@@ -138,7 +157,7 @@ function Controls() {
                   min="20"
                   max="20000"
                   step="1"
-                  value="20"
+                  defaultValue="20"
                   onClick={console.log}
                 />  
               </span>
@@ -150,7 +169,8 @@ function Controls() {
                   min="20"
                   max="20000"
                   step="1"
-                  value="20000"
+                  defaultValue="20000"
+                  onClick={console.log}
                 />
               </span>
             </div>
@@ -191,7 +211,7 @@ function Controls() {
                   min="20"
                   max="20000"
                   step="1"
-                  value="20"
+                  defaultValue="20"
                   onClick={console.log}
                 />
               </span>
@@ -203,7 +223,7 @@ function Controls() {
                   min="20"
                   max="20000"
                   step="1"
-                  value="20000"
+                  defaultValue="20000"
                   onClick={console.log}
                 />
               </span>
@@ -216,7 +236,7 @@ function Controls() {
                 min="0"
                 max="1"
                 step="0.0001"
-                value="0"
+                defaultValue="0"
                 onClick={console.log}
               />
             </div>

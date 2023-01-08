@@ -69,62 +69,87 @@ export default function useGraphBox(config) {
         isMinor = (_, i) => (t === 5 ? false : (y0 + i) % 5 !== 0);
 
       yAxis.tickValues(d3.range(y1 - y0 + 1).map(i => t * (y0 + i)))(ya);
+
       ya.select(".domain").remove();
+      
       ya.selectAll(".tick line")
         .attr("stroke-linecap", "round")
-        .attrs((_, i) => {
-          let m = isMinor(_, i);
-          return {
-            filter: m ? null : "url(#blur)",
-            "stroke-width": m ? 0.2 * (1 - r / 45) : 0.15 * (1 + 45 / r)
-          };
-        });
+        .attr("filter", (_this, i) => isMinor(_this, i) ? null : "url(#blur)")
+        .attr("stroke-width", (_this, i) => isMinor(_this, i) ? 0.2 * (1 - r / 45) : 0.15 * (1 + 45 / r));
+      
       ya.selectAll(".tick text")
         .attr("text-anchor", "start")
         .attr("x", -W + 3)
         .attr("dy", -2)
-        .filter(isMinor).attr("display", "none");
+        .filter(isMinor)
+        .attr("display", "none");
     }
-    let yAxisObj = graph.append("g")
-      .attr("transform", "translate(" + (padding.left + W) + ",0)")
-      .call(fmtY);
-    yAxisObj.insert("text")
+
+    let yAxisObj = (
+      graph
+        .append("g")
+        .attr("transform", "translate(" + (padding.left + W) + ",0)")
+        .call(fmtY)
+    );
+    
+    yAxisObj
+      .insert("text")
       .attr("transform", "rotate(-90)")
       .attr("fill", "currentColor")
       .attr("text-anchor", "end")
-      .attr("y", -W - 2).attr("x", -padding.top)
+      .attr("y", -W - 2)
+      .attr("x", -padding.top)
       .text("dB");
 
 
     // x axis
     let xvals = [2, 3, 4, 5, 6, 8, 10, 15];
-    let xAxis = d3.axisBottom(x)
-      .tickSize(H + 3).tickSizeOuter(0)
-      .tickValues(d3.merge([1, 2, 3].map(e => xvals.map(m => m * Math.pow(10, e)))).concat([20000]))
-      .tickFormat(f => f >= 1000 ? (f / 1000) + "k" : f);
+    let xAxis = (
+      d3
+        .axisBottom(x)
+        .tickSize(H + 3).tickSizeOuter(0)
+        .tickValues(d3.merge([1, 2, 3].map(e => xvals.map(m => m * Math.pow(10, e)))).concat([20000]))
+        .tickFormat(f => f >= 1000 ? (f / 1000) + "k" : f)
+    );
 
-    let tickPattern = [3, 0, 0, 1, 0, 0, 2, 0],
-      getTickType = i => i === 0 || i === 3 * 8 ? 4 : tickPattern[i % 8],
-      tickThickness = [2, 4, 4, 9, 15].map(t => t / 10);
+    const tickPattern = [3, 0, 0, 1, 0, 0, 2, 0];
+    const getTickType = i => i === 0 || i === 3 * 8 ? 4 : tickPattern[i % 8];
+    const tickThickness = [2, 4, 4, 9, 15].map(t => t / 10);
 
     function fmtX(xa) {
       xAxis(xa);
-      (xa.selection ? xa.selection() : xa).select(".domain").remove();
+
+      (xa.selection ? xa.selection() : xa)
+        .select(".domain")
+        .remove();
+
       xa.selectAll(".tick line")
         .attr("stroke", "#333")
         .attr("stroke-width", (_, i) => tickThickness[getTickType(i)]);
-      xa.selectAll(".tick text").filter((_, i) => tickPattern[i % 8] === 0)
+
+      xa.selectAll(".tick text")
+        .filter((_, i) => tickPattern[i % 8] === 0)
         .attr("font-size", "86%")
         .attr("font-weight", "lighter");
+      
       xa.select(".tick:last-of-type text")
         .attr("dx", -5)
         .text("20kHz");
+      
       xa.select(".tick:first-of-type text")
         .attr("dx", 4)
         .text("20Hz");
     }
-    defs.append("clipPath").attr("id", "x-clip")
-      .append("rect").attrs({ x: 0, y: 0, width: W0, height: H0 });
+    
+    defs
+      .append("clipPath")
+      .attr("id", "x-clip")
+      .append("rect")
+      .attr("x", 0)
+      .attr("y", 0)
+      .attr("width", W0)
+      .attr("height", H0);
+
     let xAxisObj = graph.append("g")
       .attr("clip-path", "url(#x-clip)")
       .attr("transform", "translate(0," + padding.top + ")")
@@ -132,21 +157,34 @@ export default function useGraphBox(config) {
 
 
     // Plot line
-    defs.selectAll().data([0, 1]).join("linearGradient")
-      .attrs({ x1: 0, y1: 0, x2: 1, y2: 0 })
+    defs
+      .selectAll()
+      .data([0, 1])
+      .join("linearGradient")
+      .attr("x1", 0)
+      .attr("y1", 0)
+      .attr("x2", 1)
+      .attr("y2", 0)
       .attr("id", i => "grad" + i)
-      .selectAll().data(i => [i, 1 - i]).join("stop")
+      .selectAll()
+      .data(i => [i, 1 - i])
+      .join("stop")
       .attr("offset", (_, i) => i)
       .attr("stop-color", j => ["black", "white"][j]);
+
     let fW = 7,  // Fade width
       fWm = 30; // Width at an interior edge
+    
     let fade = defs.append("mask")
       .attr("id", "graphFade")
       .attr("maskUnits", "userSpaceOnUse")
       .append("g").attr("transform", "translate(" + padding.left + "," + padding.top + ")");
+    
     fade.append("rect").attrs({ x: 0, y: 0, width: W, height: H, fill: "white" });
+    
     let fadeEdge = fade.selectAll().data([0, 1]).join("rect")
       .attrs(i => ({ x: i ? W - fW : 0, width: fW, y: 0, height: H, fill: "url(#grad" + i + ")" }));
+    
     let line = d3.line()
       .x(d => x(d[0]))
       .y(d => y(d[1]))
@@ -157,7 +195,9 @@ export default function useGraphBox(config) {
     let selectedRange = 3; // Full range
     let ranges = [[20, 400], [100, 4000], [1000, 20000], [20, 20000]],
       edgeWs = [[fW, fWm], [fWm, fWm], [fWm, fW], [fW, fW]];
+    
     let rangeSel = doc.select(".zoom").selectAll("button");
+    
     rangeSel.on("click", function (_, i) {
       let r = selectedRange,
         s = selectedRange = r === i ? 3 : i;
@@ -1698,10 +1738,6 @@ export default function useGraphBox(config) {
         activePhones.forEach(p => { if (!p.isTarget) { p.id = getPhoneNumber(); } });
         colorPhones();
       });
-
-      doc.select("#theme").on("click", function () {
-        themeChooser("change");
-      });
     })();
 
     let pathHoverTimeout;
@@ -1861,37 +1897,6 @@ export default function useGraphBox(config) {
     }
     copyUrlInit();
 
-    // Theme Chooser
-    function themeChooser(command) {
-      let docBody = document.querySelector("body"),
-        darkClass = "dark-mode",
-        darkModePref = localStorage.getItem("dark-mode-pref");
-
-      if (darkModePref) {
-        if (command === "change") {
-          localStorage.removeItem("dark-mode-pref");
-          docBody.classList.remove(darkClass);
-        } else {
-          docBody.classList.add(darkClass);
-        }
-      } else {
-        if (command === "change") {
-          localStorage.setItem("dark-mode-pref", "true");
-          docBody.classList.add(darkClass);
-        }
-      }
-    }
-    if (config.darkModeAllowed) {
-      let themeButton = document.createElement("button"),
-        miscTools = document.querySelector("div.miscTools");
-
-      themeButton.setAttribute("id", "theme");
-      themeButton.textContent = "dark mode";
-      miscTools.append(themeButton);
-
-      themeChooser();
-    }
-
     // Map faux download button
     function mapDownloadFaux() {
       let downloadButton = document.querySelector("button#download"),
@@ -1993,86 +1998,6 @@ export default function useGraphBox(config) {
       }
       catch { }
     }
-
-    // Set focused panel
-    function setFocusedPanel() {
-      let panelsContainer = document.querySelector("main.main"),
-        primaryPanel = document.querySelector(".parts-primary"),
-        secondaryPanel = document.querySelector(".parts-secondary"),
-        phonesList = document.querySelector("div#phones"),
-        graphBox = document.querySelector("div.graph-sizer"),
-        mobileHelper = document.querySelector("tr.mobile-helper");
-
-      panelsContainer.setAttribute("data-focused-panel", "secondary");
-
-      mobileHelper.addEventListener("click", function () {
-        panelsContainer.setAttribute("data-focused-panel", "secondary");
-      });
-
-      secondaryPanel.addEventListener("click", function () {
-        panelsContainer.setAttribute("data-focused-panel", "secondary");
-      });
-
-      graphBox.addEventListener("click", function () {
-        let previousState = panelsContainer.getAttribute("data-focused-panel");
-
-        if (previousState === "primary") {
-          panelsContainer.setAttribute("data-focused-panel", "secondary");
-        } else if (previousState === "secondary") {
-          panelsContainer.setAttribute("data-focused-panel", "primary");
-        }
-      });
-
-      // Touch events
-      let verticalSwipeTargets = document.querySelectorAll("div.selector-tabs, input.search");
-
-      verticalSwipeTargets.forEach(function (target) {
-        target.addEventListener("touchstart", function (e) {
-          focusedPanel = document.querySelector("main.main").getAttribute("data-focused-panel");
-
-          touchStart = e.targetTouches[0].screenY;
-
-          target.addEventListener("touchmove", function (e) {
-            touchNow = e.targetTouches[0].screenY;
-            touchDelta = touchNow - touchStart;
-
-            if (focusedPanel === "secondary" && touchDelta > 0 && touchDelta < 200) {
-              secondaryPanel.setAttribute("style", "top: " + touchDelta + "px;")
-            } else if (focusedPanel === "primary" && touchDelta < 0 && touchDelta > -200) {
-              secondaryPanel.setAttribute("style", "top: " + touchDelta + "px;")
-            }
-          });
-        });
-
-        target.addEventListener("touchend", function (e) {
-          if (touchDelta > 49) {
-            panelsContainer.setAttribute("data-focused-panel", "primary");
-          }
-
-          if (touchDelta < -50) {
-            panelsContainer.setAttribute("data-focused-panel", "secondary");
-          }
-
-          secondaryPanel.setAttribute("style", "")
-          touchStart = 0;
-          touchNow = 0;
-          touchDelta = 0;
-        });
-
-        target.addEventListener("wheel", function (e) {
-          let wheelDelta = e.deltaY;
-
-          if (wheelDelta < -5) {
-            panelsContainer.setAttribute("data-focused-panel", "primary");
-          }
-
-          if (wheelDelta > 5) {
-            panelsContainer.setAttribute("data-focused-panel", "secondary");
-          }
-        });
-      });
-    }
-    setFocusedPanel();
 
     // Blur focus from inputs on submit
     function blurFocus() {

@@ -1,23 +1,32 @@
 import React from 'react';
+import useTheme from '../hooks/useDarkTheme';
 
-function GraphBox({
-  altStickyGraph, altAnimated, labelPosition, normalizationDb, normalizationHz
-}) {
+const GraphBox = ({
+  altStickyGraph,
+  altAnimated,
+  labelPosition,
+  normalizationDb,
+  normalizationHz,
+  darkModeAllowed,
+  onDownload,
+  onGraphBoxClick,
+}) => {
+  const { toggleTheme } = useTheme();
+
   return (
     <div
       className="graphBox"
-      data={{
-        'sticky-graph': altStickyGraph,
-        animated: altAnimated
-      }}
+      data-sticky-graph={altStickyGraph}
+      data-animated={altAnimated}
     >
-      <div className="graph-sizer">
+      <div
+        className="graph-sizer"
+        onClick={onGraphBoxClick}
+      >
         <svg
           id="fr-graph"
           viewBox="0 0 800 346"
-          data={{
-            'labels-position': labelPosition
-          }}
+          data-labels-position={labelPosition}
         />
       </div>
 
@@ -89,10 +98,27 @@ function GraphBox({
         </div>
 
         <div className="miscTools">
-          <button id="inspector"><span>╞</span> inspect</button>
-          <button id="label"><span>▭</span> label</button>
-          <button id="download"><span><u>⇩</u></span> screenshot</button>
-          <button id="recolor"><span>○</span> recolor</button>
+          <button id="inspector">
+            <span>╞</span> inspect
+          </button>
+          
+          <button id="label">
+            <span>▭</span> label
+          </button>
+          
+          <button id="download" onClick={onDownload}>
+            <span><u>⇩</u></span> screenshot
+          </button>
+          
+          <button id="recolor">
+            <span>○</span> recolor
+          </button>
+
+          {darkModeAllowed && (
+            <button id="theme" onClick={toggleTheme}>
+              Dark Mode
+            </button>
+          )}
         </div>
 
         <div className="expand-collapse">
@@ -118,5 +144,10 @@ function GraphBox({
     </div>
   );
 }
+
+GraphBox.defaultProps = {
+  onDownload: () => {},
+  onContainerClick: () => {},
+};
 
 export default GraphBox;
