@@ -1,5 +1,5 @@
 Rails.application.routes.draw do
-  root 'pages#dashboard'
+  root 'pages#graphtool'
 
   devise_for :users, controllers: {
     sessions: "users/sessions",

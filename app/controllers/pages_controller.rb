@@ -1,6 +1,6 @@
 class PagesController < ApplicationController
-  layout "dashboard"
+  layout "graphtool"
   
-  def dashboard
+  def graphtool
   end
 end

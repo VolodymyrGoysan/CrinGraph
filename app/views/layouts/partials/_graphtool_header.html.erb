@@ -9,7 +9,7 @@
   <%= csrf_meta_tags %>
   <%= csp_meta_tag %>
   <%= stylesheet_link_tag "application", "application_bootstrap", "data-turbo-track": "reload" %>
-  <%= stylesheet_link_tag (@current_configuration.alt_layout ? "layouts/alt" : "layouts/default"), "data-turbo-track": "reload" %>
+  <%= stylesheet_link_tag @current_configuration.alt_layout ? "layouts/alt" : "layouts/default", "data-turbo-track": "reload" %>
   <%= javascript_include_tag "application", "data-turbo-track": "reload", defer: true %>
 
   <link rel="icon" type="image/png" sizes="32x32" href="/favicon.png?v=Gv7arLdWjW" />
