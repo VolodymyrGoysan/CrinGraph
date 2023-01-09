@@ -2487,32 +2487,6 @@ export default function useGraphBox(config) {
     // }
     // if (accessories) { addAccessories(); }
 
-    
-    // Add external links to bar at bottom of page, if configured
-    // function addExternalLinks() {
-    //     const externalLinksBar = document.querySelector("div.external-links");
-
-    //     linkSets.forEach(function(set) {
-    //         let setLabelHtml = document.createElement("span"),
-    //             setLabelText = set.label,
-    //             links = set.links;
-
-    //         setLabelHtml.textContent = setLabelText;
-    //         externalLinksBar.append(setLabelHtml);
-
-    //         links.forEach(function(link) {
-    //             let linkHtml = document.createElement("a"),
-    //                 linkName = link.name,
-    //                 linkUrl = link.url;
-
-    //             linkHtml.textContent = linkName;
-    //             linkHtml.setAttribute("href", linkUrl);
-    //             externalLinksBar.append(linkHtml);
-    //         });
-    //     });
-    // }
-    // if (externalLinksBar) { addExternalLinks(); }
-
     // Set active graph site link
     function setActiveDatabase() {
       let url = targetWindow.location.href,

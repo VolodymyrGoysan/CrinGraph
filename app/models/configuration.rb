@@ -103,7 +103,8 @@ class Configuration < ApplicationRecord
   validates :dark_mode_enabled,
             inclusion: { in: BOOLEAN_TYPES }
   
-  # validates :target_color
+  validates :target_color,
+            length: { in: 0..255 }
 
   validates :target_dashed,
             inclusion: { in: BOOLEAN_TYPES }

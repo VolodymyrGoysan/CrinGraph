@@ -1,5 +1,5 @@
 import React from 'react';
-import { string, bool, number, shape } from 'prop-types';
+import { string, bool, number, shape, arrayOf } from 'prop-types';
 
 import PanelContainer from './nested/PanelContainer';
 import PrimaryPanel from './nested/PrimaryPanel';
@@ -18,7 +18,10 @@ import './styles.scss';
 import useFullscreen from './hooks/useFullscreen';
 import useFrequencyRangesTutorial from './hooks/useFrequencyRangesTutorial';
 
-const GraphTool = ({ config }) => {
+const GraphTool = ({
+  config,
+  externalLinks,
+}) => {
   const {
     focusedPanel,
     focusPrimary,
@@ -87,7 +90,7 @@ const GraphTool = ({ config }) => {
 
             <Accessories />
             
-            <ExternalLinks />
+            <ExternalLinks links={externalLinks} />
           </PrimaryPanel>
 
           <SecondaryPanel
@@ -141,6 +144,11 @@ GraphTool.propTypes = {
     eqBandsDefault: number,
     eqBandsMax: number,
   }),
+  externalLinks: arrayOf(shape({
+    group: string,
+    name: string,
+    url: string,
+  })),
 };
 
 export default GraphTool;

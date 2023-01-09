@@ -1,7 +1,3 @@
 <noscript>Turn on Javascript</noscript>
 
-<%= react_component(
-  "GraphTool",
-  { config: @current_configuration.attributes },
-  { camelize_props: true }
-) %>
+<%= react_component "GraphTool", presenter.serialize, camelize_props: true %>

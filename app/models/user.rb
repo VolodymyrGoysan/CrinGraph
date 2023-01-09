@@ -20,6 +20,8 @@ class User < ApplicationRecord
   validates :configuration, presence: true
   validates :username, presence: true, uniqueness: true
 
+  delegate :external_links, to: :configuration
+
   private
 
   def setup_defaul_environment
