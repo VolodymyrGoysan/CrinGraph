@@ -16,6 +16,7 @@ import usePanelFocusChange from './hooks/usePanelFocus';
 
 import './styles.scss';
 import useFullscreen from './hooks/useFullscreen';
+import useFrequencyRangesTutorial from './hooks/useFrequencyRangesTutorial';
 
 const GraphTool = ({ config }) => {
   const {
@@ -31,6 +32,17 @@ const GraphTool = ({ config }) => {
     toggleExpandCollapse,
   } = useFullscreen(config)
 
+  const {
+    tutorialActive,
+    disableActiveTutorial,
+    hoveredTutorialDefinition,
+    activeTutorialDefinition,
+    handleClickTutorialButton,
+    handleMouseOverTutorialButton,
+    handleMouseOutTutorialButton,
+    handleTouchEndTutorialButton,
+  } = useFrequencyRangesTutorial(config);
+
   useGraphBox(config);
 
   return (
@@ -43,10 +55,13 @@ const GraphTool = ({ config }) => {
         <HiddenIcons />
 
         <PanelContainer focusedPanel={focusedPanel}>
-          <PrimaryPanel>
+          <PrimaryPanel
+            tutorialActive={tutorialActive}
+          >
             <GraphBox
               altStickyGraph={config.altStickyGraph}
               altAnimated={config.altAnimated}
+              altTutorial={config.altTutorial}
               labelPosition={config.labelPosition}
               normalizationDb={config.normalizationDb}
               normalizationHz={config.normalizationHz}
@@ -54,11 +69,20 @@ const GraphTool = ({ config }) => {
               expandable={config.expandable}
               onGraphBoxClick={toggleFocus}
               toggleExpandCollapse={toggleExpandCollapse}
+              disableActiveTutorial={disableActiveTutorial}
+              activeTutorialDefinition={activeTutorialDefinition}
+              hoveredTutorialDefinition={hoveredTutorialDefinition}
               // onDownload={onDownload}
             />
 
             <ManageTable
+              altTutorial={config.altTutorial}
+              activeTutorialDefinition={activeTutorialDefinition}
               onMobileHelperClick={focusSecondary}
+              onClickTutorialButton={handleClickTutorialButton}
+              onMouseOverTutorialButton={handleMouseOverTutorialButton}
+              onMouseOutTutorialButton={handleMouseOutTutorialButton}
+              onTouchEndTutorialButton={handleTouchEndTutorialButton}
             />
 
             <Accessories />

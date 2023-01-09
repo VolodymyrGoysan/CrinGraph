@@ -7,7 +7,7 @@
     "@popperjs/core": "^2.11.6",
     "@rails/actiontext": "^7.0.4",
     "autoprefixer": "^10.4.13",
-    "bootstrap": "5",
+    "bootstrap": "^5.2.3",
     "bootstrap-icons": "^1.10.3",
     "d3": "^7.8.0",
     "d3-attrs": "^1.0.4",

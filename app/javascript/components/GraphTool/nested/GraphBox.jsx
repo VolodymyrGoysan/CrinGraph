@@ -1,9 +1,11 @@
 import React from 'react';
 import useTheme from '../hooks/useDarkTheme';
+import { TUTORIAL_DEFINITIONS } from '../constants';
 
 const GraphBox = ({
   altStickyGraph,
   altAnimated,
+  altTutorial,
   labelPosition,
   normalizationDb,
   normalizationHz,
@@ -12,6 +14,9 @@ const GraphBox = ({
   onGraphBoxClick,
   expandable,
   toggleExpandCollapse,
+  activeTutorialDefinition,
+  hoveredTutorialDefinition,
+  disableActiveTutorial,
 }) => {
   const { toggleTheme } = useTheme();
 
@@ -25,6 +30,23 @@ const GraphBox = ({
         className="graph-sizer"
         onClick={onGraphBoxClick}
       >
+        {
+          altTutorial && (
+            <div className="tutorial-overlay">
+              {TUTORIAL_DEFINITIONS.map(({ name, width }) => (
+                <div
+                  className="overlay-segment"
+                  key={name}
+                  data-tutorial-def={name}
+                  data-tutorial-hovered={name === hoveredTutorialDefinition}
+                  data-tutorial-active={name === activeTutorialDefinition}
+                  style={{ flexBasis: width }}
+                />
+              ))}
+            </div>
+          )
+        }
+
         <svg
           id="fr-graph"
           viewBox="0 0 800 346"
@@ -40,9 +62,32 @@ const GraphBox = ({
 
         <div className="zoom">
           <span>Zoom:</span>
-          <button>Bass</button>
-          <button>Mids</button>
-          <button>Treble</button>
+          <button
+            onClick={() => {
+              // zoom to bass
+              disableActiveTutorial();
+            }}
+          >
+            Bass
+          </button>
+
+          <button
+            onClick={() => {
+              // zoom to mids
+              disableActiveTutorial();
+            }}
+          >
+            Mids
+          </button>
+          
+          <button
+            onClick={() => {
+              // zoom to treble
+              disableActiveTutorial();
+            }}
+          >
+            Treble
+          </button>
         </div>
 
         <div className="normalize">
