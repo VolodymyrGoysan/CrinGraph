@@ -20,7 +20,6 @@ class Variant < ApplicationRecord
             unless: :default
 
   validates :default,
-            presence: true,
             inclusion: { in: [true, false] }
 
   validates :channel,

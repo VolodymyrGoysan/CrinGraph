@@ -1,4 +1,6 @@
 class ConfigurationsController < ApplicationController
+  before_action :authenticate_user!
+
   def show
     @configuration = current_user.configuration
   end

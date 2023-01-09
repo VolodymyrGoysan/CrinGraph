@@ -30,6 +30,10 @@
                 <div class="fa fa-cog"></div>
                 <b>Account settings</b>
               <% end %>
+              <%= link_to config_path, class: "dropdown-item #{'active fw-bold' if current_page?(config_path)}" do %>
+                <div class="fa fa-cog"></div>
+                <b>Configuration</b>
+              <% end %>
               <%= link_to destroy_user_session_path,  data: { "turbo-method": :delete }, class: "dropdown-item" do %>
                 <div class="fa fa-sign-out-alt"></div>
                 <b>Sign out</b>
