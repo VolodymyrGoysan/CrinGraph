@@ -13,6 +13,8 @@ class User < ApplicationRecord
   )
 
   has_one :configuration, dependent: :destroy, inverse_of: :user
+  has_many :units, dependent: :destroy, inverse_of: :user
+
   before_validation :setup_defaul_environment, on: :create
 
   validates :configuration, presence: true

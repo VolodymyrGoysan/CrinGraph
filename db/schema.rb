@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.0].define(version: 2023_01_03_024130) do
+ActiveRecord::Schema[7.0].define(version: 2023_01_08_164240) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
 
@@ -103,6 +103,16 @@ ActiveRecord::Schema[7.0].define(version: 2023_01_03_024130) do
     t.index ["configuration_id"], name: "index_external_links_on_configuration_id"
   end
 
+  create_table "units", force: :cascade do |t|
+    t.bigint "user_id", null: false
+    t.string "construction_type"
+    t.string "brand"
+    t.string "name"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["user_id"], name: "index_units_on_user_id"
+  end
+
   create_table "users", force: :cascade do |t|
     t.string "username", default: "", null: false
     t.string "email", default: "", null: false
@@ -130,8 +140,21 @@ ActiveRecord::Schema[7.0].define(version: 2023_01_03_024130) do
     t.index ["unlock_token"], name: "index_users_on_unlock_token", unique: true
   end
 
+  create_table "variants", force: :cascade do |t|
+    t.bigint "unit_id", null: false
+    t.string "name"
+    t.string "channel", default: "L", null: false
+    t.boolean "default", default: false, null: false
+    t.jsonb "fr_data", default: {}, null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["unit_id"], name: "index_variants_on_unit_id"
+  end
+
   add_foreign_key "active_storage_attachments", "active_storage_blobs", column: "blob_id"
   add_foreign_key "active_storage_variant_records", "active_storage_blobs", column: "blob_id"
   add_foreign_key "configurations", "users"
   add_foreign_key "external_links", "configurations"
+  add_foreign_key "units", "users"
+  add_foreign_key "variants", "units"
 end

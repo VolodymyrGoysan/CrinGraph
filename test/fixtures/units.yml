@@ -1,0 +1,13 @@
+# Read about fixtures at https://api.rubyonrails.org/classes/ActiveRecord/FixtureSet.html
+
+one:
+  user: one
+  type: earphone
+  brand: Brand1
+  name: Model1
+
+two:
+  user: two
+  type: headphone
+  brand: Brand2
+  name: Model2

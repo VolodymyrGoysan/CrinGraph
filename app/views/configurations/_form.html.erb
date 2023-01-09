@@ -1,0 +1,187 @@
+<%= form_with(model: configuration, url: update_config_path) do |form| %>
+  <% if configuration.errors.any? %>
+    <div style="color: red">
+      <h2><%= pluralize(configuration.errors.count, "error") %> prohibited this configuration from being saved:</h2>
+
+      <ul>
+        <% configuration.errors.each do |error| %>
+          <li><%= error.full_message %></li>
+        <% end %>
+      </ul>
+    </div>
+  <% end %>
+
+  <div>
+    <%= form.label :watermark_text, style: "display: block" %>
+    <%= form.text_field :watermark_text %>
+  </div>
+
+  <div>
+    <%= form.label :page_title, style: "display: block" %>
+    <%= form.text_field :page_title %>
+  </div>
+  
+  <div>
+    <%= form.label :page_description, style: "display: block" %>
+    <%= form.rich_text_area :page_description %>
+  </div>
+
+  <div>
+    <%= form.label :dual_channel, style: "display: block" %>
+    <%= form.check_box :dual_channel %>
+  </div>
+  
+  <div>
+    <%= form.label :enabled_channel, style: "display: block" %>
+    <%= form.select :enabled_channel, Configuration::CHANNELS.zip(Configuration::CHANNELS) %>
+  </div>
+
+  <div>
+    <%= form.label :notmalization_type, style: "display: block" %>
+    <%= form.select :notmalization_type, Configuration::NORMALIZATION_TYPES.zip(Configuration::NORMALIZATION_TYPES) %>
+  </div>
+
+  <div>
+    <%= form.label :normalization_db, style: "display: block" %>
+    <%= form.number_field :normalization_db %>
+  </div>
+  
+  <div>
+    <%= form.label :normalization_hz, style: "display: block" %>
+    <%= form.number_field :normalization_hz %>
+  </div>
+    
+  <div>
+    <%= form.label :max_channel_imbalance, style: "display: block" %>
+    <%= form.number_field :max_channel_imbalance %>
+  </div>
+
+  <div>
+    <%= form.label :alt_layout, style: "display: block" %>
+    <%= form.check_box :alt_layout %>
+  </div>
+
+  <div>
+    <%= form.label :alt_sticky_graph, style: "display: block" %>
+    <%= form.check_box :alt_sticky_graph %>
+  </div>
+
+  <div>
+    <%= form.label :alt_animated, style: "display: block" %>
+    <%= form.check_box :alt_animated %>
+  </div>
+
+  <div>
+    <%= form.label :alt_header, style: "display: block" %>
+    <%= form.check_box :alt_header %>
+  </div>
+
+  <div>
+    <%= form.label :alt_header_new_tab, style: "display: block" %>
+    <%= form.check_box :alt_header_new_tab %>
+  </div>
+
+  <div>
+    <%= form.label :alt_tutorial, style: "display: block" %>
+    <%= form.check_box :alt_tutorial %>
+  </div>
+
+  <div>
+    <%= form.label :alt_augment, style: "display: block" %>
+    <%= form.check_box :alt_augment %>
+  </div>
+
+  <div>
+    <%= form.label :share_url, style: "display: block" %>
+    <%= form.check_box :share_url %>
+  </div>
+
+  <div>
+    <%= form.label :restricted, style: "display: block" %>
+    <%= form.check_box :restricted %>
+  </div>
+
+  <div>
+    <%= form.label :expandable, style: "display: block" %>
+    <%= form.check_box :expandable %>
+  </div>
+
+  <div>
+    <%= form.label :expandable_width, style: "display: block" %>
+    <%= form.number_field :expandable_width %>
+  </div>
+    
+  <div>
+    <%= form.label :expandable_header_height, style: "display: block" %>
+    <%= form.number_field :expandable_header_height %>
+  </div>
+
+  <div>
+    <%= form.label :dark_mode_allowed, style: "display: block" %>
+    <%= form.check_box :dark_mode_allowed %>
+  </div>
+
+  <div>
+    <%= form.label :dark_mode_enabled, style: "display: block" %>
+    <%= form.check_box :dark_mode_enabled %>
+  </div>
+      
+  <div>
+    <%= form.label :target_color, style: "display: block" %>
+    <%= form.text_field :target_color %>
+  </div>
+
+  <div>
+    <%= form.label :target_dashed, style: "display: block" %>
+    <%= form.check_box :target_dashed %>
+  </div>
+
+  <div>
+    <%= form.label :sticky_labels, style: "display: block" %>
+    <%= form.check_box :sticky_labels %>
+  </div>
+
+  <div>
+    <%= form.label :label_position, style: "display: block" %>
+    <%= form.text_field :label_position %>
+  </div>
+
+  <div>
+    <%= form.label :tone_generator_enabled, style: "display: block" %>
+    <%= form.check_box :tone_generator_enabled %>
+  </div>
+
+  <div>
+    <%= form.label :analytics_enabled, style: "display: block" %>
+    <%= form.check_box :analytics_enabled %>
+  </div>
+
+  <div>
+    <%= form.label :upload_fr_enabled, style: "display: block" %>
+    <%= form.check_box :upload_fr_enabled %>
+  </div>
+
+  <div>
+    <%= form.label :upload_target_enabled, style: "display: block" %>
+    <%= form.check_box :upload_target_enabled %>
+  </div>
+
+  <div>
+    <%= form.label :eq_enabled, style: "display: block" %>
+    <%= form.check_box :eq_enabled %>
+  </div>
+
+    <div>
+    <%= form.label :eq_bands_default, style: "display: block" %>
+    <%= form.number_field :eq_bands_default %>
+  </div>
+    <div>
+    <%= form.label :eq_bands_max, style: "display: block" %>
+    <%= form.number_field :eq_bands_max %>
+  </div>
+
+
+  <div>
+    <%= form.submit %>
+  </div>
+<% end %>

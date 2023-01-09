@@ -5,7 +5,8 @@ class ApplicationController < ActionController::Base
   private
 
   def load_current_account
-    @current_account = User.first || User.new
+    @current_account = current_user
+    # @current_account = User.first || User.new
   end
 
   def load_current_configuration

@@ -1,0 +1,10 @@
+<div id="<%= dom_id configuration %>">
+  <table>
+    <% configuration.attributes.map do |name, value| %>
+      <tr>
+        <td><%= name %></td>
+        <td><%= value %></td>
+      </tr>
+    <% end %>
+  <table>
+</div>

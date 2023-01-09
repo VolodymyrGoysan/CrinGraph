@@ -1,4 +1,6 @@
 Rails.application.routes.draw do
+  root 'pages#dashboard'
+
   devise_for :users, controllers: {
     sessions: "users/sessions",
     confirmations: "users/confirmations",
@@ -8,5 +10,11 @@ Rails.application.routes.draw do
     # omniauth_callbacks: "users/omniauth_callbacks"
   }
 
-  root 'pages#dashboard'
+  get "config", to: "configurations#edit"
+  put "update_config", to: "configurations#update"
+  patch "update_config", to: "configurations#update"
+
+  resources :units do 
+    resources :variants
+  end
 end

@@ -1,0 +1,14 @@
+<p style="color: green"><%= notice %></p>
+
+<h1>Variants</h1>
+
+<div id="variants">
+  <% @variants.each do |variant| %>
+    <%= render variant %>
+    <p>
+      <%= link_to "Show this variant", variant %>
+    </p>
+  <% end %>
+</div>
+
+<%= link_to "New variant", new_variant_path %>

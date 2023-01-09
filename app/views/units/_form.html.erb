@@ -1,0 +1,62 @@
+<%= form_with(model: unit) do |form| %>
+  <% if unit.errors.any? %>
+    <div style="color: red">
+      <h2><%= pluralize(unit.errors.count, "error") %> prohibited this unit from being saved:</h2>
+
+      <ul>
+        <% unit.errors.each do |error| %>
+          <li><%= error.full_message %></li>
+        <% end %>
+      </ul>
+    </div>
+  <% end %>
+
+  <div>
+    <%= form.label :construction_type, style: "display: block" %>
+    <%= form.select :construction_type, Unit::TYPES.map(&:capitalize).zip(Unit::TYPES) %>
+  </div>
+
+  <div>
+    <%= form.label :brand, style: "display: block" %>
+    <%= form.text_field :brand %>
+  </div>
+
+  <div>
+    <%= form.label :name, style: "display: block" %>
+    <%= form.text_field :name %>
+  </div>
+
+  <br />
+
+  Variants:
+
+  <br />
+
+  <%= form.fields_for :variants do |variant_subform| %>
+    <div>
+      <%= variant_subform.label :name, style: "display: block" %>
+      <%= variant_subform.text_field :name %>
+    </div>
+
+    <div>
+      <%= variant_subform.label :channel, style: "display: block" %>
+      <%= variant_subform.select :channel, [["Left", "L"], ["Right", "R"]] %>
+    </div>
+
+    <div>
+      <%= variant_subform.label :default, style: "display: block" %>
+      <%= variant_subform.check_box :default %>
+    </div>
+
+    <div>
+      <%= variant_subform.label :file, style: "display: block" %>
+      <%= variant_subform.file_field :file %>
+    </div>
+  <% end %>
+
+  <br />
+
+  <div>
+    <%= form.submit %>
+  </div>
+<% end %>
