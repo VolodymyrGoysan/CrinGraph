@@ -10,6 +10,8 @@ const GraphBox = ({
   darkModeAllowed,
   onDownload,
   onGraphBoxClick,
+  expandable,
+  toggleExpandCollapse,
 }) => {
   const { toggleTheme } = useTheme();
 
@@ -121,25 +123,32 @@ const GraphBox = ({
           )}
         </div>
 
-        <div className="expand-collapse">
-          <button id="expand-collapse"></button>
-        </div>
+        {expandable && (
+          <>
+            <div className="expand-collapse">
+              <button
+                id="expand-collapse"
+                onClick={toggleExpandCollapse}
+              />
+            </div>
 
-        <svg id="expandTools" viewBox="0 0 14 12">
-          <path
-            d="M2 2h10M2 6h10M2 10h10"
-            strokeWidth="2px"
-            stroke="#878156"
-            strokeLinecap="round"
-            transform="translate(0,0.3)"
-          />
-          <path
-            d="M2 2h10M2 6h10M2 10h10"
-            strokeWidth="2px"
-            stroke="currentColor"
-            strokeLinecap="round"
-          />
-        </svg>
+            <svg id="expandTools" viewBox="0 0 14 12">
+              <path
+                d="M2 2h10M2 6h10M2 10h10"
+                strokeWidth="2px"
+                stroke="#878156"
+                strokeLinecap="round"
+                transform="translate(0,0.3)"
+              />
+              <path
+                d="M2 2h10M2 6h10M2 10h10"
+                strokeWidth="2px"
+                stroke="currentColor"
+                strokeLinecap="round"
+              />
+            </svg>
+          </>
+        )}
       </div>
     </div>
   );

@@ -1,4 +1,5 @@
 import React from 'react';
+import { string, bool, number, shape } from 'prop-types';
 
 import PanelContainer from './nested/PanelContainer';
 import PrimaryPanel from './nested/PrimaryPanel';
@@ -14,44 +15,9 @@ import useGraphBox from './hooks/useGraphBox';
 import usePanelFocusChange from './hooks/usePanelFocus';
 
 import './styles.scss';
+import useFullscreen from './hooks/useFullscreen';
 
-const GraphTool = (props) => {
-  // userId,
-  // watermarkText,
-  // pageTitle,
-  // pageDescription,
-  // dualChannel,
-  // enabledChannel,
-  // notmalizationType,
-  // normalizationDb,
-  // normalizationHz,
-  // maxChannelImbalance,
-  // altLayout,
-  // altStickyGraph,
-  // altAnimated,
-  // altHeader,
-  // altHeaderNewTab,
-  // altTutorial,
-  // altAugment,
-  // shareUrl,
-  // restricted,
-  // expandable,
-  // expandableWidth,
-  // expandableHeaderHeight,
-  // darkModeAllowed,
-  // darkModeEnabled,
-  // targetColor,
-  // targetDashed,
-  // stickyLabels,
-  // labelPosition,
-  // toneGeneratorEnabled,
-  // analyticsEnabled,
-  // uploadFrEnabled,
-  // uploadTargetEnabled,
-  // eqEnabled,
-  // eqBandsDefault,
-  // eqBandsMax
-
+const GraphTool = ({ config }) => {
   const {
     focusedPanel,
     focusPrimary,
@@ -59,44 +25,98 @@ const GraphTool = (props) => {
     toggleFocus,
   } = usePanelFocusChange();
 
-  useGraphBox(props);
+  const {
+    dataGraphFrame,
+    dataExpandable,
+    toggleExpandCollapse,
+  } = useFullscreen(config)
+
+  useGraphBox(config);
 
   return (
-    <div className="graphtool">
-      <HiddenIcons />
+    <div
+      className="graphtool-container"
+      data-expandable={dataExpandable}
+      data-graph-frame={dataGraphFrame}
+    >
+      <div className="graphtool">
+        <HiddenIcons />
 
-      <PanelContainer focusedPanel={focusedPanel}>
-        <PrimaryPanel>
-          <GraphBox
-            altStickyGraph={props.altStickyGraph}
-            altAnimated={props.altAnimated}
-            labelPosition={props.labelPosition}
-            normalizationDb={props.normalizationDb}
-            normalizationHz={props.normalizationHz}
-            darkModeAllowed={props.darkModeAllowed}
-            onGraphBoxClick={toggleFocus}
-            // onDownload={onDownload}
+        <PanelContainer focusedPanel={focusedPanel}>
+          <PrimaryPanel>
+            <GraphBox
+              altStickyGraph={config.altStickyGraph}
+              altAnimated={config.altAnimated}
+              labelPosition={config.labelPosition}
+              normalizationDb={config.normalizationDb}
+              normalizationHz={config.normalizationHz}
+              darkModeAllowed={config.darkModeAllowed}
+              expandable={config.expandable}
+              onGraphBoxClick={toggleFocus}
+              toggleExpandCollapse={toggleExpandCollapse}
+              // onDownload={onDownload}
+            />
+
+            <ManageTable
+              onMobileHelperClick={focusSecondary}
+            />
+
+            <Accessories />
+            
+            <ExternalLinks />
+          </PrimaryPanel>
+
+          <SecondaryPanel
+            focusedPanel={focusedPanel}
+            focusPrimary={focusPrimary}
+            focusSecondary={focusSecondary}
           />
 
-          <ManageTable
-            onMobileHelperClick={focusSecondary}
-          />
-
-          <Accessories />
-          
-          <ExternalLinks />
-        </PrimaryPanel>
-
-        <SecondaryPanel
-          focusedPanel={focusedPanel}
-          focusPrimary={focusPrimary}
-          focusSecondary={focusSecondary}
-        />
-
-        <EqOverlay />
-      </PanelContainer>
+          <EqOverlay />
+        </PanelContainer>
+      </div>
     </div>
   )
 }
+
+GraphTool.propTypes = {
+  config: shape({
+    userId: number,
+    watermarkText: string,
+    pageTitle: string,
+    pageDescription: string,
+    dualChannel: bool,
+    enabledChannel: string,
+    notmalizationType: string,
+    normalizationDb: number,
+    normalizationHz: number,
+    maxChannelImbalance: number,
+    altLayout: bool,
+    altStickyGraph: bool,
+    altAnimated: bool,
+    altHeader: bool,
+    altHeaderNewTab: bool,
+    altTutorial: bool,
+    altAugment: bool,
+    shareUrl: bool,
+    restricted: bool,
+    expandable: bool,
+    expandableWidth: number,
+    expandableHeaderHeight: number,
+    darkModeAllowed: bool,
+    darkModeEnabled: bool,
+    targetColor: string,
+    targetDashed: bool,
+    stickyLabels: bool,
+    labelPosition: string,
+    toneGeneratorEnabled: bool,
+    analyticsEnabled: bool,
+    uploadFrEnabled: bool,
+    uploadTargetEnabled: bool,
+    eqEnabled: bool,
+    eqBandsDefault: number,
+    eqBandsMax: number,
+  }),
+};
 
 export default GraphTool;

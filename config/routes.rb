@@ -1,5 +1,7 @@
 Rails.application.routes.draw do
-  root 'pages#graphtool'
+  root 'pages#dashboard'
+
+  get "graphtool", to: "pages#graphtool"
 
   devise_for :users, controllers: {
     sessions: "users/sessions",

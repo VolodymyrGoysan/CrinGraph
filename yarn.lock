@@ -896,10 +896,10 @@ esbuild-plugin-import-glob@^0.1.1:
   dependencies:
     fast-glob "^3.2.5"
 
-esbuild-plugin-inline-image@^0.0.9:
-  version "0.0.9"
-  resolved "https://registry.yarnpkg.com/esbuild-plugin-inline-image/-/esbuild-plugin-inline-image-0.0.9.tgz#b645ddd258c013e9f7c96fddf4e06e66f44618ae"
-  integrity sha512-pw3ZgN2phh32Z7BpKrhRDtmI+iVCl+Gc0BLOT9croXg1MnMjRuN7aXhIQirhLeK39erkIwfFlhy6xieroBGc1Q==
+esbuild-plugin-path-alias@^1.0.7:
+  version "1.0.7"
+  resolved "https://registry.yarnpkg.com/esbuild-plugin-path-alias/-/esbuild-plugin-path-alias-1.0.7.tgz#c52cc0198d01d6a3c490fb56232e344d057ba0e3"
+  integrity sha512-0Be2FjvykTNc8kWrpNmZEopdbGLG+K1jKRwQ9HtBZCQb004C3P7p5HcYxciet+VXtblpeIWL7UFyogz/iMq/cw==
 
 esbuild-rails@^1.0.3:
   version "1.0.3"
