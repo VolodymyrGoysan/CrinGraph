@@ -1,4 +1,5 @@
 class PagesController < ApplicationController
-  def dashboard
+  def graphtool
+    render layout: "graphtool"
   end
 end

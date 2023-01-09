@@ -1,0 +1,22 @@
+<div id="<%= dom_id variant %>">
+  <p>
+    <strong>Unit:</strong>
+    <%= variant.unit.name %>
+  </p>
+
+  <p>
+    <strong>Name:</strong>
+    <%= variant.name %>
+  </p>
+
+  <p>
+    <strong>Fr data:</strong>
+    <%= variant.fr_data %>
+  </p>
+
+  <p>
+    <strong>File:</strong>
+    <%= link_to variant.file.filename, variant.file if variant.file.attached? %>
+  </p>
+
+</div>

@@ -1,5 +1,6 @@
 class Configuration < ApplicationRecord
   CHANNELS = %w[L R].freeze
+  BOOLEAN_TYPES = [true, false]
   NORMALIZATION_TYPES = %w[dB Hz].freeze
   LABEL_POSITIONS = [
     "default", "top-left", "bottom-left", "bottom-right"
@@ -21,7 +22,8 @@ class Configuration < ApplicationRecord
             length: { maximum: 10_000 },
             allow_blank: true
 
-  validates :dual_channel, presence: true
+  validates :dual_channel,
+            inclusion: { in: BOOLEAN_TYPES }
 
   validates :enabled_channel,
             presence: true,
@@ -49,25 +51,35 @@ class Configuration < ApplicationRecord
 
   validates :max_channel_imbalance, presence: true
   
-  validates :alt_layout, presence: true
+  validates :alt_layout,
+            inclusion: { in: BOOLEAN_TYPES }
 
-  validates :alt_sticky_graph, presence: true
+  validates :alt_sticky_graph,
+            inclusion: { in: BOOLEAN_TYPES }
 
-  validates :alt_animated, presence: true
+  validates :alt_animated,
+            inclusion: { in: BOOLEAN_TYPES }
 
-  validates :alt_header, presence: true
+  validates :alt_header,
+            inclusion: { in: BOOLEAN_TYPES }
 
-  validates :alt_header_new_tab, presence: true
+  validates :alt_header_new_tab,
+            inclusion: { in: BOOLEAN_TYPES }
 
-  validates :alt_tutorial, presence: true
+  validates :alt_tutorial,
+            inclusion: { in: BOOLEAN_TYPES }
 
-  validates :alt_augment, presence: true
+  validates :alt_augment,
+            inclusion: { in: BOOLEAN_TYPES }
 
-  validates :share_url, presence: true
+  validates :share_url,
+            inclusion: { in: BOOLEAN_TYPES }
 
-  validates :restricted, presence: true
+  validates :restricted,
+            inclusion: { in: BOOLEAN_TYPES }
   
-  validates :expandable, presence: true
+  validates :expandable,
+            inclusion: { in: BOOLEAN_TYPES }
 
   validates :expandable_width,
             presence: true,
@@ -85,29 +97,38 @@ class Configuration < ApplicationRecord
               less_than_or_equal_to: 100_000
             }
   
-  validates :dark_mode_allowed, presence: true
+  validates :dark_mode_allowed,
+            inclusion: { in: BOOLEAN_TYPES }
 
-  validates :dark_mode_enabled, presence: true
+  validates :dark_mode_enabled,
+            inclusion: { in: BOOLEAN_TYPES }
   
   # validates :target_color
 
-  validates :target_dashed, presence: true
+  validates :target_dashed,
+            inclusion: { in: BOOLEAN_TYPES }
 
-  validates :sticky_labels, presence: true
+  validates :sticky_labels,
+            inclusion: { in: BOOLEAN_TYPES }
 
   validates :label_position,
             presence: true,
             inclusion: { in: LABEL_POSITIONS }
   
-  validates :tone_generator_enabled, presence: true
+  validates :tone_generator_enabled,
+            inclusion: { in: BOOLEAN_TYPES }
 
-  validates :analytics_enabled, presence: true
+  validates :analytics_enabled,
+            inclusion: { in: BOOLEAN_TYPES }
 
-  validates :upload_fr_enabled, presence: true
+  validates :upload_fr_enabled,
+            inclusion: { in: BOOLEAN_TYPES }
 
-  validates :upload_target_enabled, presence: true
+  validates :upload_target_enabled,
+            inclusion: { in: BOOLEAN_TYPES }
 
-  validates :eq_enabled, presence: true
+  validates :eq_enabled,
+            inclusion: { in: BOOLEAN_TYPES }
 
   validates :eq_bands_default,
             presence: true,

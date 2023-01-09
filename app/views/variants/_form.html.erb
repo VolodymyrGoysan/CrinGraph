@@ -1,0 +1,32 @@
+<%= form_with(model: variant) do |form| %>
+  <% if variant.errors.any? %>
+    <div style="color: red">
+      <h2><%= pluralize(variant.errors.count, "error") %> prohibited this variant from being saved:</h2>
+
+      <ul>
+        <% variant.errors.each do |error| %>
+          <li><%= error.full_message %></li>
+        <% end %>
+      </ul>
+    </div>
+  <% end %>
+
+  <div>
+    <%= form.label :unit_id, style: "display: block" %>
+    <%= form.text_field :unit_id %>
+  </div>
+
+  <div>
+    <%= form.label :name, style: "display: block" %>
+    <%= form.text_field :name %>
+  </div>
+
+  <div>
+    <%= form.label :file, style: "display: block" %>
+    <%= form.file_field :file %>
+  </div>
+
+  <div>
+    <%= form.submit %>
+  </div>
+<% end %>

@@ -56,6 +56,8 @@ gem "devise-i18n"
 gem "devise-bootstrap5"
 gem "react-rails"
 
+gem "active_storage_validations", "~> 1.0"
+
 # gem 'omniauth-github'
 # gem 'omniauth-google-oauth2'
 
@@ -81,3 +83,7 @@ group :test do
   gem "selenium-webdriver"
   gem "webdrivers"
 end
+
+gem "pry", "~> 0.14.1"
+
+gem "csv", "~> 3.2"

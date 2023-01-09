@@ -950,21 +950,22 @@ export default function useGraphBox(config) {
     }
 
     let targetWindow = window;
-    let accessWindowTop = false;
 
     // See if iframe gets CORS error when interacting with window.top
-    try {
-      accessWindowTop = (window.top.location.href) ? true : false;
+    try {      
       targetWindow = window.location.href.includes('embed') ? window : window.top;
-    } catch {
+    } catch (error) {
+      console.error(error);
     }
 
-    // See if iframe gets CORS error when interacting with window.top.document
-    let accessDocumentTop = false;
 
+    let accessDocumentTop = false;
+    
+    // See if iframe gets CORS error when interacting with window.top.document
     try {
       accessDocumentTop = (window.top.document) ? true : false;
-    } catch {
+    } catch (error) {
+      console.error(error);
     }
 
     let ifURL = typeof share_url !== "undefined" && share_url;
@@ -1004,6 +1005,7 @@ export default function useGraphBox(config) {
       if (ifURL && !trigger) addPhonesToUrl();
       if (config.stickyLabels) drawLabels();
     }
+
     let colorBar = p => 'url(\'data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 5 8"><path d="M0 8v-8h1c0.05 1.5,-0.3 3,-0.16 5s0.1 2,0.15 3z" fill="' + getBgColor(p) + '"/></svg>\')';
     function updatePhoneTable() {
       let c = table.selectAll("tr").data(activePhones, p => p.fileName);
