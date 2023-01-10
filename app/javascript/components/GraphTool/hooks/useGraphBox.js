@@ -2477,16 +2477,6 @@ export default function useGraphBox(config) {
     }
     addExtra();
 
-    // Add accessories to the bottom of the page, if configured
-    // function addAccessories() {
-    //     let accessoriesBar = document.querySelector("div.accessories"),
-    //         accessoriesContainer = document.createElement("aside");
-
-    //     accessoriesContainer.innerHTML = whichAccessoriesToUse;
-    //     accessoriesBar.append(accessoriesContainer);
-    // }
-    // if (accessories) { addAccessories(); }
-
     // Set active graph site link
     function setActiveDatabase() {
       let url = targetWindow.location.href,

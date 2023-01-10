@@ -31,7 +31,7 @@ class ConfigurationsController < ApplicationController
       .permit(
         :id, :user_id, :watermark_text, :page_title, :page_description,
         :dual_channel, :enabled_channel, :notmalization_type, :normalization_db,
-        :normalization_hz, :max_channel_imbalance, :alt_layout,
+        :normalization_hz, :max_channel_imbalance, :alt_layout, :accessories,
         :alt_sticky_graph, :alt_animated, :alt_header, :alt_header_new_tab,
         :alt_tutorial, :alt_augment, :share_url, :restricted, :expandable,
         :expandable_width, :expandable_header_height, :dark_mode_allowed,

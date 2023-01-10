@@ -2,6 +2,7 @@
 
 class ConfigurationPresenter < BasePresenter
   include Serializable
+  include ActionText::ContentHelper
 
   attribute(:configuration)
   serializable_object(:configuration)
@@ -39,6 +40,13 @@ class ConfigurationPresenter < BasePresenter
     :upload_target_enabled,
     :eq_enabled,
     :eq_bands_default,
-    :eq_bands_max
+    :eq_bands_max,
+    :accessories
   )
+
+  def accessories
+    ActionText::Content
+      .new(configuration.accessories.body.to_html)
+      .to_s
+  end
 end

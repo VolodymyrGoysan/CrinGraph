@@ -88,7 +88,7 @@ const GraphTool = ({
               onTouchEndTutorialButton={handleTouchEndTutorialButton}
             />
 
-            <Accessories />
+            <Accessories content={config.accessories} />
             
             <ExternalLinks links={externalLinks} />
           </PrimaryPanel>
@@ -143,6 +143,7 @@ GraphTool.propTypes = {
     eqEnabled: bool,
     eqBandsDefault: number,
     eqBandsMax: number,
+    accessories: string,
   }),
   externalLinks: arrayOf(shape({
     group: string,
