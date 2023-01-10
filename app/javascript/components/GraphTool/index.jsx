@@ -26,7 +26,7 @@ const GraphTool = ({
     focusedPanel,
     focusPrimary,
     focusSecondary,
-    toggleFocus,
+    togglePrimarySecondaryFocus,
   } = usePanelFocusChange();
 
   const {
@@ -70,7 +70,7 @@ const GraphTool = ({
               normalizationHz={config.normalizationHz}
               darkModeAllowed={config.darkModeAllowed}
               expandable={config.expandable}
-              onGraphBoxClick={toggleFocus}
+              onGraphBoxClick={togglePrimarySecondaryFocus}
               toggleExpandCollapse={toggleExpandCollapse}
               disableActiveTutorial={disableActiveTutorial}
               activeTutorialDefinition={activeTutorialDefinition}

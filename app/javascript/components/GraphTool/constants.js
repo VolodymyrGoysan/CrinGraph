@@ -3,6 +3,12 @@ export const PANELS = {
   SECONDARY: "secondary",
 };
 
+export const LISTS = {
+  BRANDS: "brands",
+  MODELS: "models",
+  EXTRA: "extra",
+};
+
 // TODO: consider moving it to config
 export const TUTORIAL_DEFINITIONS = [
   {
