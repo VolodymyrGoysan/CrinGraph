@@ -1,9 +1,20 @@
 import React, { useRef } from 'react';
 import { groupBy } from 'lodash';
 import { arrayOf, number, shape, string } from 'prop-types';
+import classNames from 'classnames';
+
+const targetWindow = window.location.href.includes('embed') ? window : window.top;
 
 const renderLink = ({ id, url, name }) => (
-  <a key={id} href={url} target="_blank" rel="noreferrer">
+  <a
+    key={id}
+    href={url}
+    target="_blank"
+    rel="noreferrer"
+    className={
+      classNames({ active: targetWindow.location.href.includes(url) })
+    }
+  >
     {name}
   </a>
 );

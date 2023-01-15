@@ -47,3 +47,5 @@ export const TUTORIAL_DEFINITIONS = [
     description: 'Lorem ipsum.'
   }
 ];
+
+export const LD_P1 = 1.1673039782614187;

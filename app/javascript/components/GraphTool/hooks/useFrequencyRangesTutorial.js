@@ -1,6 +1,6 @@
 import { useState } from 'react';
 
-function useFrequencyRangesTutorial() {
+function useFrequencyRangesTutorial(config) {
   const [activeDefinition, setActiveDefinition] = useState(null);
   const [hoveredDefinition, setHoveredDefinition] = useState(null);
   const tutorialActive = !!activeDefinition;

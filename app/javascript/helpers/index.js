@@ -1,4 +1,4 @@
 // import "./config"
 // import "./config_hp"
 // import "./listAugment"
-import "./graphtool"
+import "../components/GraphTool/helpers"

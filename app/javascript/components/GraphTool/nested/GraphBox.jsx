@@ -1,5 +1,8 @@
 import React from 'react';
+
 import useTheme from '../hooks/useDarkTheme';
+import useCopyUrlButton from '../hooks/useCopyUrlButton';
+
 import { TUTORIAL_DEFINITIONS } from '../constants';
 
 const GraphBox = ({
@@ -19,6 +22,7 @@ const GraphBox = ({
   disableActiveTutorial,
 }) => {
   const { toggleTheme } = useTheme();
+  const { copyUrlButtonClass, onCopyUrlButtonClick } = useCopyUrlButton();
 
   return (
     <div
@@ -56,8 +60,20 @@ const GraphBox = ({
 
       <div className="tools collapseTools">
         <div className="copy-url">
-          <button id="copy-url">Copy URL</button>
-          <button id="download-faux">Screenshot</button>
+          <button
+            id="copy-url"
+            onClick={onCopyUrlButtonClick}
+            className={copyUrlButtonClass}
+          >
+            Copy URL
+          </button>
+
+          <button
+            onClick={onDownload}
+            id="download-faux"
+          >
+            Screenshot
+          </button>
         </div>
 
         <div className="zoom">

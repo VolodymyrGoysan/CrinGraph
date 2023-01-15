@@ -11,12 +11,12 @@ import ManageTable from './nested/ManageTable';
 import Accessories from './nested/Accessories';
 import ExternalLinks from './nested/ExternalLinks';
 
-import useGraphBox from './hooks/useGraphBox';
+import usePhones from './hooks/usePhones';
+import useFullscreen from './hooks/useFullscreen';
 import usePanelFocusChange from './hooks/usePanelFocus';
+import useFrequencyRangesTutorial from './hooks/useFrequencyRangesTutorial';
 
 import './styles.scss';
-import useFullscreen from './hooks/useFullscreen';
-import useFrequencyRangesTutorial from './hooks/useFrequencyRangesTutorial';
 
 const GraphTool = ({
   config,
@@ -46,7 +46,7 @@ const GraphTool = ({
     handleTouchEndTutorialButton,
   } = useFrequencyRangesTutorial(config);
 
-  useGraphBox(config);
+  usePhones();
 
   return (
     <div
