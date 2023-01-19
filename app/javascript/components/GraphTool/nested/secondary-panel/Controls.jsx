@@ -1,27 +1,52 @@
 import React from 'react';
 
 function Controls({
-  handleDraggableTouchStart,
-  handleDraggableTouchMove,
-  handleDraggableTouchEnd,
-  handleDraggableWheel,
+  selectedList,
+  focusModels,
+  focusBrands,
+  swipableListStyle,
+  handlePanelTouchStart,
+  handlePanelTouchMove,
+  handlePanelTouchEnd,
+  handlePanelWheel,
+  handleListTouchStart,
+  handleListTouchMove,
+  handleListTouchEnd,
 }) {
   return (
     <div className="controls">
       <div
         className="select"
-        data-selected="models"
+        data-selected={selectedList}
       >
         <div
           className="selector-tabs"
-          onTouchStart={handleDraggableTouchStart}
-          onTouchMove={handleDraggableTouchMove}
-          onTouchEnd={handleDraggableTouchEnd}
-          onWheel={handleDraggableWheel}
+          onTouchStart={handlePanelTouchStart}
+          onTouchMove={handlePanelTouchMove}
+          onTouchEnd={handlePanelTouchEnd}
+          onWheel={handlePanelWheel}
         >
-          <button className="brands" data-list="brands">Brands</button>
-          <button className="models" data-list="models">Models</button>
-          <button className="extra">Equalizer</button>
+          <button
+            className="brands"
+            data-list="brands"
+            onClick={focusBrands}
+          >
+            Brands
+          </button>
+          
+          <button
+            className="models"
+            data-list="models"
+            onClick={focusModels}
+          >
+            Models
+          </button>
+          
+          <button
+            className="extra"
+          >
+            Equalizer
+          </button>
         </div>
 
         <div className="selector-panel">
@@ -31,10 +56,10 @@ function Controls({
             inputMode="search"
             placeholder="Search"
             onClick={console.log}
-            onTouchStart={handleDraggableTouchStart}
-            onTouchMove={handleDraggableTouchMove}
-            onTouchEnd={handleDraggableTouchEnd}
-            onWheel={handleDraggableWheel}
+            onTouchStart={handlePanelTouchStart}
+            onTouchMove={handlePanelTouchMove}
+            onTouchEnd={handlePanelTouchEnd}
+            onWheel={handlePanelWheel}
             // onClick="this.focus();this.select()"
           />
 
@@ -46,12 +71,26 @@ function Controls({
             <path d="M4 1H0C3 1 3.2 0.8 4 0Z" />
           </svg>
 
-          <div className="scroll-container">
-            <div className="scrollOuter" data-list="brands">
+          <div
+            className="scroll-container"
+            onTouchStart={handleListTouchStart}
+            onTouchMove={handleListTouchMove}
+            onTouchEnd={handleListTouchEnd}
+          >
+            <div
+              className="scrollOuter"
+              onClick={focusBrands}
+              data-list="brands"
+            >
               <div className="scroll" id="brands" />
             </div>
             
-            <div className="scrollOuter" data-list="models">
+            <div
+              className="scrollOuter"
+              onClick={focusModels}
+              style={swipableListStyle}
+              data-list="models"
+            >
               <div className="scroll" id="phones" />
             </div>
           </div>

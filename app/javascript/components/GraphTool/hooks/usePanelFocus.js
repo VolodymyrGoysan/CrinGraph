@@ -6,7 +6,7 @@ export default function usePanelFocus() {
   
   const focusSecondary = useCallback(() => setFocusedPanel(PANELS.SECONDARY), [setFocusedPanel]);
   const focusPrimary = useCallback(() => setFocusedPanel(PANELS.PRIMARY), [setFocusedPanel]);
-  const toggleFocus = useCallback(() => setFocusedPanel((prevPanel) => (
+  const togglePrimarySecondaryFocus = useCallback(() => setFocusedPanel((prevPanel) => (
     prevPanel === PANELS.SECONDARY ? PANELS.PRIMARY : PANELS.SECONDARY
   )), [setFocusedPanel]);
   
@@ -14,6 +14,6 @@ export default function usePanelFocus() {
     focusedPanel,
     focusPrimary,
     focusSecondary,
-    toggleFocus,
+    togglePrimarySecondaryFocus,
   }
 }

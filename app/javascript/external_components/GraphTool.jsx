@@ -1,1 +1,1 @@
-export { default } from "../components/GraphTool";
+export { default } from "components/GraphTool";

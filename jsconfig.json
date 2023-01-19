@@ -1,0 +1,23 @@
+{
+  "compilerOptions": {
+    "baseUrl": ".",
+    "jsx": "react",
+    "checkJs": true,
+    "resolveJsonModule": true,
+    "experimentalDecorators": true,
+    "module": "esnext",
+    "target": "esnext",
+    "moduleResolution": "node",
+    "paths": {
+      "*": [
+        "./app/javascript/*"
+      ],
+    }
+  },
+  "include": [
+    "./app/javascript/**/*"
+  ],
+  "exclude": [
+    "node_modules"
+  ]
+}

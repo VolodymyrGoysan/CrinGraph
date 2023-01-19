@@ -3,6 +3,12 @@ export const PANELS = {
   SECONDARY: "secondary",
 };
 
+export const LISTS = {
+  BRANDS: "brands",
+  MODELS: "models",
+  EXTRA: "extra",
+};
+
 // TODO: consider moving it to config
 export const TUTORIAL_DEFINITIONS = [
   {
@@ -41,3 +47,5 @@ export const TUTORIAL_DEFINITIONS = [
     description: 'Lorem ipsum.'
   }
 ];
+
+export const LD_P1 = 1.1673039782614187;

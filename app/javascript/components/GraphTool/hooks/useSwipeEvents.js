@@ -1,68 +1,105 @@
 import { useState, useRef, useCallback, useMemo } from 'react';
 import { throttle } from 'lodash';
-import { PANELS } from '../constants';
+import { PANELS, LISTS } from '../constants';
 
-const MOVING_UP_DELTA = 200;
-const MOVING_DOWN_DELTA = -200;
+const VERTICAL_DELTA = 200;
+const HORISONTAL_DELTA = 100;
 const DEFAULT_TOUCH_POSITIONS = {
   yStart: 0,
   yCurrent: 0,
   yDelta: 0,
+  xStart: 0,
+  xCurrent: 0,
+  xDelta: 0,
 };
 
+const inRange = (value, min, max) => value > min && value < max;
+
+// TODO: consider changing touchmove events to imperative commands
 export default function useSwipeEvents({
   focusedPanel,
   focusPrimary,
   focusSecondary,
+  selectedList,
+  focusModels,
+  focusBrands,
 }) {
-  const touchPositions = useRef({ ...DEFAULT_TOUCH_POSITIONS });
+  const positions = useRef({ ...DEFAULT_TOUCH_POSITIONS });
   const [secondaryPanelStyle, serSecondaryPanelStyle] = useState({});
-
-  const movingInRange = useCallback((min, max) => (
-    touchPositions.current.yDelta > min && touchPositions.current.yDelta < max
-  ), []);
+  const [swipableListStyle, setSwipableListStyle] = useState({});
   
-  const handleTouchStart = useCallback((event) => {
-    touchPositions.current.yStart = event.targetTouches[0].screenY;
+  const handlePanelTouchStart = useCallback((event) => {
+    positions.current.yStart = event.targetTouches[0].screenY;
   }, []);
 
-  const handleTouchMove = useCallback((event) => {
-    touchPositions.current.yCurrent = event.targetTouches[0].screenY;
-    touchPositions.current.yDelta = touchPositions.current.yCurrent - touchPositions.current.yStart;
+  const handlePanelTouchMoveRaw = useCallback((event) => {
+    positions.current.yCurrent = event.targetTouches[0].screenY;
+    positions.current.yDelta = positions.current.yCurrent - positions.current.yStart;
 
-    const focusedSecondary = focusedPanel === PANELS.SECONDARY;
-    const movingDown = focusedSecondary && movingInRange(0, MOVING_UP_DELTA);
-    const movingUp = !focusedSecondary && movingInRange(MOVING_DOWN_DELTA, 0);
+    const movingDown = focusedPanel === PANELS.SECONDARY && inRange(positions.current.yDelta, 0, VERTICAL_DELTA);
+    const movingUp = focusedPanel === PANELS.PRIMARY && inRange(positions.current.yDelta, -VERTICAL_DELTA, 0);
 
     if (movingDown || movingUp) {
-      serSecondaryPanelStyle({ top: touchPositions.current.yDelta });
+      serSecondaryPanelStyle({ top: positions.current.yDelta });
     }
-  }, [serSecondaryPanelStyle, movingInRange, focusedPanel]);
+  }, [serSecondaryPanelStyle, focusedPanel]);
 
-  const throttledTouchMove = useMemo(() => (
-    throttle(handleTouchMove, 30)
-  ), [handleTouchMove]);
+  const handlePanelTouchMove = useMemo(() => (
+    throttle(handlePanelTouchMoveRaw, 30)
+  ), [handlePanelTouchMoveRaw]);
 
-  const handleTouchEnd = useCallback(() => {
-    if (touchPositions.current.yDelta > 49) focusPrimary();
-    if (touchPositions.current.yDelta < -50) focusSecondary();
+  const handlePanelTouchEnd = useCallback(() => {
+    if (positions.current.yDelta > 49) focusPrimary();
+    if (positions.current.yDelta < -50) focusSecondary();
 
     serSecondaryPanelStyle({});
-    touchPositions.current = { ...DEFAULT_TOUCH_POSITIONS };
+    positions.current = { ...DEFAULT_TOUCH_POSITIONS };
   }, [focusPrimary, focusSecondary]);
 
-  const handleWheel = useCallback((event) => {
+  const handlePanelWheel = useCallback((event) => {
     const wheelDelta = event.deltaY;
 
     if (wheelDelta < -5) focusPrimary();
     if (wheelDelta > 5) focusSecondary();
-  }, [focusPrimary, focusSecondary])
+  }, [focusPrimary, focusSecondary]);
+
+  const handleListTouchStart = useCallback((event) => {
+    positions.current.xStart = event.targetTouches[0].screenX;
+  }, []);
+  
+  const handleListTouchMoveRaw = useCallback((event) => {
+    positions.current.xCurrent = event.targetTouches[0].screenX;
+    positions.current.xDelta = positions.current.xCurrent - positions.current.xStart;
+      
+    const movingRight = selectedList === LISTS.MODELS && inRange(positions.current.xDelta, 0, HORISONTAL_DELTA);
+    const movingLeft = selectedList === LISTS.BRANDS && inRange(positions.current.xDelta, -HORISONTAL_DELTA, 0);
+    
+    if (movingRight || movingLeft) {
+      setSwipableListStyle({ right: -positions.current.xDelta })
+    }
+  }, [selectedList]);
+
+  const handleListTouchMove = useMemo(() => (
+    throttle(handleListTouchMoveRaw, 30)
+  ), [handleListTouchMoveRaw]);
+
+  const handleListTouchEnd = useCallback(() => {
+    if (positions.current.xDelta > 49) focusBrands();
+    if (positions.current.xDelta < -50) focusModels()
+
+    setSwipableListStyle({});
+    positions.current = { ...DEFAULT_TOUCH_POSITIONS };
+  }, [focusBrands, focusModels]);
 
   return {
     secondaryPanelStyle,
-    handleTouchStart,
-    handleTouchMove: throttledTouchMove,
-    handleTouchEnd,
-    handleWheel,
+    swipableListStyle,
+    handlePanelTouchStart,
+    handlePanelTouchMove,
+    handlePanelTouchEnd,
+    handlePanelWheel,
+    handleListTouchStart,
+    handleListTouchMove,
+    handleListTouchEnd,
   }
 }

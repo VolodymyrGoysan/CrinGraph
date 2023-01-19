@@ -14,7 +14,7 @@ import {
 } from "./config";
 
 // Smoothed 127 bands frequencies for graphic eq (wavelet)
-const buildGraphicEQFequences = (min = 20, max = 20000) => {
+const buildGraphicEQFequencies = (min = 20, max = 20000) => {
   const slice = Math.log(max / min) / Math.log(1.0563);
   const bandsCount = Math.ceil(slice);
   const frequenciesArray = new Array(bandsCount).fill(null).map((_, i) => Math.floor(20 * Math.pow(1.0563, i)));
@@ -24,7 +24,7 @@ const buildGraphicEQFequences = (min = 20, max = 20000) => {
 
 // Use to get response diff by EQ before smoothing
 // ~= 1/96 octave
-const buildGraphicEQRawFrequences = () => {
+const buildGraphicEQRawFrequencies = () => {
   const slice = Math.log(20000 / 20) / Math.log(1.0072);
   const bandsCount = Math.ceil(slice);
 
@@ -168,11 +168,11 @@ class Equalizer {
       if (!f.freq || !f.gain || !f.q) {
         return null;
       } else if (f.type === "LSQ") {
-        return lowshelf(f.freq, f.q, f.gain, sampleRate);
+        return this.lowshelf(f.freq, f.q, f.gain, sampleRate);
       } else if (f.type === "HSQ") {
-        return highshelf(f.freq, f.q, f.gain, sampleRate);
+        return this.highshelf(f.freq, f.q, f.gain, sampleRate);
       } else if (f.type === "PK") {
-        return peaking(f.freq, f.q, f.gain, sampleRate);
+        return this.peaking(f.freq, f.q, f.gain, sampleRate);
       }
       return null;
     }).filter(f => f);
@@ -183,8 +183,8 @@ class Equalizer {
     for (let i = 0; i < fr.length; ++i) {
       freqs[i] = fr[i][0];
     }
-    let coeffs = filters_to_coeffs(filters, sampleRate);
-    let gains = calc_gains(freqs, coeffs, sampleRate);
+    let coeffs = this.filters_to_coeffs(filters, sampleRate);
+    let gains = this.calc_gains(freqs, coeffs, sampleRate);
     let fr_eq = new Array(fr.length).fill(null);
     for (let i = 0; i < fr.length; ++i) {
       fr_eq[i] = [fr[i][0], fr[i][1] + gains[i]];
@@ -193,10 +193,10 @@ class Equalizer {
   }
 
   as_graphic_eq(filters, sampleRate) {
-    let rawFS = buildGraphicEQRawFrequences();
-    const fs = buildGraphicEQFequences();
-    let coeffs = filters_to_coeffs(filters, sampleRate);
-    let gains = calc_gains(rawFS, coeffs, sampleRate);
+    let rawFS = buildGraphicEQRawFrequencies();
+    const fs = buildGraphicEQFequencies();
+    let coeffs = this.filters_to_coeffs(filters, sampleRate);
+    let gains = this.calc_gains(rawFS, coeffs, sampleRate);
     let rawFR = rawFS.map((f, i) => [f, gains[i]]);
     // Interpolate and smoothing with moving average
     let i = 0;
@@ -239,8 +239,8 @@ class Equalizer {
           let end = f;
           let center = Math.sqrt(start * end);
           let gain = (
-            interp([center], frTarget.slice(startIndex, i))[0][1] -
-            interp([center], fr.slice(startIndex, i))[0][1]);
+            this.interp([center], frTarget.slice(startIndex, i))[0][1] -
+            this.interp([center], fr.slice(startIndex, i))[0][1]);
           let q = center / (end - start);
           if (center >= minFreq && center <= maxFreq) {
             candidates.push({ type: "PK", freq: center, q, gain });
@@ -273,15 +273,15 @@ class Equalizer {
 
     return filters.map(f => ({
       type: f.type,
-      freq: Math.floor(f.freq - f.freq % freq_unit(f.freq)),
+      freq: Math.floor(f.freq - f.freq % this.freq_unit(f.freq)),
       q: Math.min(Math.max(Math.floor(f.q * 10) / 10, minQ), maxQ),
       gain: Math.min(Math.max(Math.floor(f.gain * 10) / 10, minGain), maxGain)
     }));
   }
 
   optimize(fr, frTarget, filters, iteration, dir) {
-    filters = strip(filters);
-    let combinations = [];
+    filters = this.strip(filters);
+    // let combinations = [];
     let [minFreq, maxFreq] = DEFAULT_AUTO_EQ_RANGE;
     let [minQ, maxQ] = DEFAULT_Q_RANGE;
     let [minGain, maxGain] = DEFAULT_GAIN_RANGE;
@@ -292,13 +292,13 @@ class Equalizer {
     // Optimize freq, q, gain
     for (let i = begin; i != end; i += step) {
       let f = filters[i];
-      let fr1 = apply(fr, filters.filter((f, fi) => fi !== i));
-      let fr2 = apply(fr1, [f]);
-      let fr3 = apply(fr, filters);
+      let fr1 = this.apply(fr, filters.filter((f, fi) => fi !== i));
+      let fr2 = this.apply(fr1, [f]);
+      // let fr3 = this.apply(fr, filters);
       let bestFilter = f;
-      let bestDistance = calc_distance(fr2, frTarget);
+      let bestDistance = this.calc_distance(fr2, frTarget);
       let testNewFilter = (df, dq, dg) => {
-        let freq = f.freq + df * freq_unit(f.freq) * stepDF;
+        let freq = f.freq + df * this.freq_unit(f.freq) * stepDF;
         let q = f.q + dq * stepDQ;
         let gain = f.gain + dg * stepDG;
         if (freq < minFreq || freq > maxFreq || q < minQ ||
@@ -306,8 +306,8 @@ class Equalizer {
           return false;
         }
         let newFilter = { type: f.type, freq, q, gain };
-        let newFR = apply(fr1, [newFilter]);
-        let newDistance = calc_distance(newFR, frTarget);
+        let newFR = this.apply(fr1, [newFilter]);
+        let newDistance = this.calc_distance(newFR, frTarget);
         if (newDistance < bestDistance) {
           bestFilter = newFilter;
           bestDistance = newDistance;
@@ -333,14 +333,14 @@ class Equalizer {
       filters[i] = bestFilter;
     }
     if (!dir) {
-      return optimize(fr, frTarget, filters, iteration, 1);
+      return this.optimize(fr, frTarget, filters, iteration, 1);
     } else {
       filters = filters.sort((a, b) => a.freq - b.freq);
       // Merge closed filters
       for (let i = 0; i < filters.length - 1;) {
         let f1 = filters[i];
         let f2 = filters[i + 1];
-        if (Math.abs(f1.freq - f2.freq) <= freq_unit(f1.freq) &&
+        if (Math.abs(f1.freq - f2.freq) <= this.freq_unit(f1.freq) &&
           Math.abs(f1.q - f2.q) <= 0.1) {
           f1.gain += f2.gain;
           filters.splice(i + 1, 1);
@@ -349,14 +349,18 @@ class Equalizer {
         }
       }
       // Remove unnecessary filters
-      let bestDistance = calc_distance(apply(fr, filters), frTarget);
+      let bestDistance = this.calc_distance(this.apply(fr, filters), frTarget);
       for (let i = 0; i < filters.length;) {
         if (Math.abs(filters[i].gain) <= 0.1) {
           filters.splice(i, 1);
           continue;
         }
-        let newDistance = calc_distance(apply(fr,
-          filters.filter((f, fi) => fi !== i)), frTarget);
+
+        let newDistance = this.calc_distance(
+          this.apply(fr, filters.filter((f, fi) => fi !== i)),
+          frTarget
+        );
+
         if (newDistance < bestDistance) {
           filters.splice(i, 1);
           bestDistance = newDistance;
@@ -372,7 +376,7 @@ class Equalizer {
     // 2 steps manual optimized algorithm
     // fr, frTarget should has same resolution and normalized
     let firstBatchSize = Math.max(Math.floor(maxFilters / 2) - 1, 1);
-    let firstCandidates = search_candidates(fr, frTarget, 1);
+    let firstCandidates = this.search_candidates(fr, frTarget, 1);
     let firstFilters = (firstCandidates
       // Dont adjust treble in the first batch
       .filter(c => c.freq <= TREBLE_START_FROM)
@@ -381,24 +385,24 @@ class Equalizer {
       .slice(0, firstBatchSize)
       .sort((a, b) => a.freq - b.freq));
     for (let i = 0; i < DELTA_MATRIX.length; ++i) {
-      firstFilters = optimize(fr, frTarget, firstFilters, i);
+      firstFilters = this.optimize(fr, frTarget, firstFilters, i);
     }
-    let secondFR = apply(fr, firstFilters);
+    let secondFR = this.apply(fr, firstFilters);
     let secondBatchSize = maxFilters - firstFilters.length;
-    let secondCandidates = search_candidates(secondFR, frTarget, 0.5);
+    let secondCandidates = this.search_candidates(secondFR, frTarget, 0.5);
     let secondFilters = (secondCandidates
       .sort((a, b) => a.q - b.q)
       .slice(0, secondBatchSize)
       .sort((a, b) => a.freq - b.freq));
     for (let i = 0; i < DELTA_MATRIX.length; ++i) {
-      secondFilters = optimize(secondFR, frTarget, secondFilters, i);
+      secondFilters = this.optimize(secondFR, frTarget, secondFilters, i);
     }
     let allFilters = firstFilters.concat(secondFilters);
     for (let i = 0; i < DELTA_MATRIX.length; ++i) {
-      allFilters = optimize(fr, frTarget, allFilters, i);
+      allFilters = this.optimize(fr, frTarget, allFilters, i);
     }
-    return strip(allFilters);
+    return this.strip(allFilters);
   }
-};
+}
 
 export default Equalizer;

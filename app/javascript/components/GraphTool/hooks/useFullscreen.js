@@ -1,17 +1,23 @@
 import { useState, useEffect, useCallback } from 'react';
-import addStyleToDocument from 'helpers/addStyleToDocument';
-import buildExpandableParentBodyStyle from 'helpers/graphtool/buildExpandableParentBodyStyle';
-import buildExpandableContainerStyle from 'helpers/graphtool/buildExpandableContainerStyle';
+import addStyleToDocument from 'helpers/addStyleToDocument.js';
+import buildExpandableParentBodyStyle from '../helpers/style/buildExpandableParentBodyStyle.js';
+import buildExpandableContainerStyle from '../helpers/style/buildExpandableContainerStyle.js';
 
 // Designed to be used only when render from iframe
 function useFullscreen({ expandable, expandableWidth, expandableHeaderHeight }) {
-  // TODO: fixme
-  // const graphIsIframe = (window.top !== window.self) ? true : false;
-  const graphIsIframe = true;
+  const graphIsIframe = window.top !== window;
   const [expanded, setExpanded] = useState(false);
 
   const toggleExpandCollapse = () => {
-    // TODO: check for accessDocumentTop
+    // See if iframe gets CORS error when interacting with window.top.document
+    try {
+      window.top.document
+    } catch (error) {
+      console.error(error);
+
+      return;
+    }
+
     setExpanded((prevExpanded) => !prevExpanded);
   }
 
@@ -36,7 +42,6 @@ function useFullscreen({ expandable, expandableWidth, expandableHeaderHeight }) 
       addStyleToDocument(document, buildExpandableContainerStyle({ expandableWidth }));
     }
 
-    // TODO: check for graphIsIframe && expandableWidth
     addStyleToDocument(window.top.document, buildExpandableParentBodyStyle({ expandableHeaderHeight }));
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
