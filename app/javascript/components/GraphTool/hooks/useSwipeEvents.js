@@ -15,6 +15,7 @@ const DEFAULT_TOUCH_POSITIONS = {
 
 const inRange = (value, min, max) => value > min && value < max;
 
+// TODO: consider changing touchmove events to imperative commands
 export default function useSwipeEvents({
   focusedPanel,
   focusPrimary,

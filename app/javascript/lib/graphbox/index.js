@@ -2,10 +2,18 @@ import { saveSvgAsPng, saveSvg } from 'helpers/saveSvgAsPng';
 import * as d3 from "d3";
 
 // fixme
-import buildFrequencyValues from 'components/GraphTool/helpers/buildFrequencyValues';
+import buildFrequencyValues from 'helpers/buildFrequencyValues';
 import frToIndex from 'helpers/frToIndex';
 import getCurveColor from 'helpers/getCurveColor';
-import { phoneOffset, phoneFullName, channelName } from 'helpers/phone';
+// import avgCurves from 'helpers/avgCurves';
+import {
+  phoneOffset,
+  phoneFullName,
+  channelName,
+  // isMultichannel,
+  // hasChannelSel,
+  // hasImbalance,
+} from 'helpers/phone';
 
 import VerticalScaler from "./verticalScaler";
 
@@ -24,6 +32,7 @@ import {
   ZOOM_RANGES,
   ZOOM_EDGE_WIDTHS,
 } from './constants';
+// import addPhonesToUrl from 'helpers/addPhonesToUrl';
 
 const activePhones = [];
 
@@ -32,8 +41,13 @@ class GraphBox {
   constructor(config, yCenter) {
     this.config = config;
     this.yCenter = yCenter;
+    
     this.selectedZoomIndex = ZOOM_RANGES.length;
     this.frequencyValues = buildFrequencyValues();
+    this.LR = this.config.dualChannel ? ["L", "R"] : [this.config.enabledChannel];
+    this.sampnums = this.config.num_samples ? d3.range(1, this.config.num_samples + 1) : [""];
+    this.keyExt = this.LR.length === 1 ? 16 : 0;
+    this.keyLeft = this.keyExt ? 0 : this.sampnums.length > 1 ? 11 : 0;
 
     this.doc = d3.select(".graphtool");
     this.graph = this.doc.select("#fr-graph");
@@ -88,7 +102,7 @@ class GraphBox {
     this.yAxisObj = this.graph
       .append("g")
       .attr("transform", "translate(" + (PADDING.left + INNER_WIDTH) + ",0)")
-      .call(this.fmtY) // TODO: check if bind(this) needed
+      .call(this.fmtY.bind(this))
 
     this.yAxisObj
       .insert("text")
@@ -130,7 +144,7 @@ class GraphBox {
       .append("g")
       .attr("clip-path", "url(#x-clip)")
       .attr("transform", "translate(0," + PADDING.top + ")")
-      .call(this.fmtX);
+      .call(this.fmtX.bind(this));
   }
 
   fmtY(axisElement) {
@@ -277,7 +291,7 @@ class GraphBox {
     this.xAxisObj
       .transition()
       .duration(duration)
-      .call(this.fmtX); // TODO: check for bind
+      .call(this.fmtX.bind(this));
   }
 
   buildVerticalScaler() {
@@ -300,51 +314,35 @@ class GraphBox {
     ));
 
     this.yScale.domain(yDomainValues);
-    this.yAxisObj.call(this.fmtY); // TODO: check bind
+    this.yAxisObj.call(this.fmtY.bind(this));
 
     this.clearLabels();
-    this.gpath.selectAll("path").call(this.redrawLine);
+    this.gpath.selectAll("path").call(this.redrawLine.bind(this));
   }
 
-  // TODO: move to hooks
-  // let labelButton = doc.select("#label");
-  // let labelsShown = false;
-  // function setLabelButton(l) {
-  //   labelButton.classed("selected", labelsShown = l);
-  // }
-
-  // labelButton.on("click", () => (labelsShown ? this.clearLabels : this.drawLabels)());
 
   clearLabels() {
     this.graph.selectAll(".lineLabel").remove();
-    // setLabelButton(false);
+  }
+
+  getO(i) {
+    if (!this.config.dualChannel) return 0;
+
+    return i * 2 / (this.LR.length - 1) - 1;
   }
 
   // TODO: consider refactoring
   // need to receive label names
   drawLabels() {
-    // setLabelButton(true);
-
-    const LR = this.config.dualChannel ? ["L", "R"] : [this.config.enabledChannel];
-    const sampnums = typeof num_samples !== "undefined" ? d3.range(1, num_samples + 1) : [""];
-    const keyExt = LR.length === 1 ? 16 : 0;
-    const keyLeft = keyExt ? 0 : sampnums.length > 1 ? 11 : 0;
-
-    if (keyLeft) d3.select(".key").style("width", "17%")
-
-    let getO = (i) => {
-      if (!this.config.dualChannel) return 0;
-
-      return i * 2 / (LR.length - 1) - 1;
-    };
+    if (this.keyLeft) d3.select(".key").style("width", "17%")
 
     // TODO: move activePhones outside
     let curves = d3.merge(
       activePhones.filter(p => !p.hide).map(p =>
         p.isTarget || !p.samp || p.avg ? p.activeCurves
-          : LR.map((l, i) => ({
-            p: p, o: getO(i), id: channelName(p, l), multi: true,
-            l: (n => p.channels.slice(i * n, (i + 1) * n))(sampnums.length)
+          : this.LR.map((l, i) => ({
+            p: p, o: this.getO(i), id: channelName(p, l), multi: true,
+            l: (n => p.channels.slice(i * n, (i + 1) * n))(this.sampnums.length)
               .filter(c => c !== null)
           }))
       )
@@ -411,11 +409,11 @@ class GraphBox {
       tr = [[x0, y0]];
     } else {
       let n = v.length;
-      let invd = (sc, d) => sc.invert(d) - sc.invert(0),
-        xr = this.xScale.range(),
-        yd = this.yScale.domain(),
-        wind = w => Math.ceil((w / (xr[1] - xr[0])) * rf_values.length),
-        mw = wind(d3.min(w));
+      let invd = (sc, d) => sc.invert(d) - sc.invert(0);
+      let xr = this.xScale.range();
+      // let yd = this.yScale.domain();
+      let wind = w => Math.ceil((w / (xr[1] - xr[0])) * rf_values.length);
+      let mw = wind(d3.min(w));
       let winReduce = (l, w, d0, fn) => {
         l = l.slice();
         for (let d = d0; d < w;) {
@@ -442,7 +440,7 @@ class GraphBox {
         ds = range[j].map(function (r, ri) {
           let le = r.length,
             s = [[-he, 0], [0, he]][ri].map(o => r.map(d => d + o)),
-            d = r.map(_ => 1e10);
+            d = r.map(() => 1e10);
           for (let k = 0; k < n; k++) if (k !== j) {
             let t = range[k];
             for (let i = 0; i < le; i++) {
@@ -534,9 +532,7 @@ class GraphBox {
 
   // TODO: rename
   addElements() {
-    let baseline = { p: null, l: null, fn: l => l };
-    
-    this.baseline = baseline; // ??
+    this.baseline = { p: null, l: null, fn: l => l };
 
     this.gpath = this.graph
       .insert("g", ".dBScaler")
@@ -544,24 +540,23 @@ class GraphBox {
       .attr("stroke-width", 2.3)
       .attr("mask", "url(#graphFade)");
 
-    this.table = this.doc.select(".curves");
+    this.table = this.doc.select(".curves"); // TODO: move table interaction outside
   }
 
-
-  getTooltipColor(curve) {
-    const color_curveToText = (c) => {
-      if (!this.config.altLayout) {
-        c.l = c.l / 5 + 10;
-        c.c /= 3;
-      }
-      return c;
+  curveColorToText(color) {
+    if (!this.config.altLayout) {
+      color.l = color.l / 5 + 10;
+      color.c /= 3;
     }
 
-    const getColor_AC = c => getCurveColor(c.p.id, c.o);
-
-    return color_curveToText(getColor_AC(curve));
+    return color;
   }
 
+  getTextColor(phone, o = 0) {
+    const curveColor = getCurveColor(phone.id, o);
+
+    return this.curveColorToText(curveColor);
+  }
 
   drawLine(d) {
     return this.line(this.baseline.fn(d.l));
@@ -570,7 +565,9 @@ class GraphBox {
   redrawLine(p) {
     let getTr = o => o ? "translate(0," + (this.yScale(o) - this.yScale(0)) + ")" : null;
 
-    p.attr("transform", c => getTr(phoneOffset(c.p))).attr("d", this.drawLine);
+    p
+      .attr("transform", c => getTr(phoneOffset(c.p)))
+      .attr("d", this.drawLine);
   }
 
   rangeToSlice(xs, fn) {
@@ -605,7 +602,7 @@ class GraphBox {
       .append("text")
       .attr("x", m[0])
       .attr("y", m[1] - 6)
-      .attr("fill", this.getTooltipColor(c))
+      .attr("fill", this.getTextColor(c.p, c.o))
       .text(t => t);
 
     const b = t.node().getBBox();
@@ -641,7 +638,7 @@ class GraphBox {
   newTooltip(tooltip) {
     tooltip
       .attr("class", "lineLabel")
-      .attr("fill", (d) => this.getTooltipColor(d));
+      .attr("fill", (d) => this.getTextColor(d.p, d.o));
 
     tooltip
       .append("text")
@@ -666,6 +663,7 @@ class GraphBox {
       .attr("height", (b) => b.height + 2);
   }
 
+  // TODO: use it outside
   setInpectMode(mode) {
     this.interactInspect = mode;
   }
@@ -673,6 +671,7 @@ class GraphBox {
   handleMouseMove(imm) {
     let cs = d3.merge(activePhones.map(p => p.hide ? [] : p.activeCurves));
     if (!cs.length) return;
+    // @ts-ignore
     let m = d3.mouse(this);
 
     if (this.interactInspect) {
@@ -682,6 +681,7 @@ class GraphBox {
       let sel = m[0] - x0 < x1 - m[0];
       let xv = sel ? x0 : x1;
 
+      // @ts-ignore
       ind -= sel; // ????
 
       let insp = this.graph
@@ -698,7 +698,7 @@ class GraphBox {
       let tt = insp
         .selectAll(".lineLabel")
         .data(cy.map(d => d[0]), d => d.id)
-        .join(enter => enter.insert("g", "line").call(this.newTooltip));
+        .join(enter => enter.insert("g", "line").call(this.newTooltip.bind(this)));
 
       let start = tt
         .select("g")
@@ -711,6 +711,7 @@ class GraphBox {
         .text(t => t)
         .filter((_, i) => i === 0)
         .nodes()
+        // @ts-ignore
         .map(n => n.getBBox().x - 2); // TODO: try node()
 
       tt
@@ -742,6 +743,7 @@ class GraphBox {
       tt.attr("transform", (_, i) => "translate(0," + (this.yScale(ch[i]) + 5) + ")");
       dB.attr("y", this.yScale(ch[ch.length - 1] + 2 * hh) + 1);
     } else {
+      // @ts-ignore
       let d = 30 * OUTER_WIDTH / this.graph.node().getBoundingClientRect().width;
       let sl = this.rangeToSlice([-1, 1], s => m[0] + d * s);
       let ind = cs.map(c => (
@@ -771,6 +773,64 @@ class GraphBox {
       .on("mouseout", () => this.interactInspect ? this.stopInspect() : this.pathHL(false))
       .on("click", () => this.handleMouseMove(true));
   }
+
+  updatePaths(trigger) {
+    this.clearLabels();
+    
+    let c = d3.merge(activePhones.map(p => p.activeCurves));
+    let p = this.gpath.selectAll("path").data(c, d => d.id);
+    let t = p
+      .join("path")
+      .attr("opacity", c => c.p.hide ? 0 : null)
+      .classed("sample", c => c.p.samp)
+      .attr("stroke", (c) => this.getTextColor(c.p, c.o))
+      .call(this.redrawLine.bind(this))
+      .filter(c => c.p.isTarget)
+      .attr("class", "target");
+
+    if (this.config.targetDashed) t.style("stroke-dasharray", "6, 3");
+    if (this.config.targetColor) t.attr("stroke", this.config.targetColor);
+    if (this.config.shareUrl && !trigger) {
+      // addPhonesToUrl(this.config, targetWindow, activePhones); // TODO: move outside
+    }
+    if (this.config.stickyLabels) this.drawLabels();
+  }
+
+  updateYCenter() {
+    let c = this.yCenter;
+    
+    this.yCenter = this.baseline.p ? 0 : this.config.normalizationIndex ? 60 : this.config.normalizationDb;
+    this.yScale.domain(this.yScale.domain().map(d => d + (this.yCenter - c)));
+    this.yAxisObj.call(this.fmtY.bind(this));
+  }
+
+  highlight(p, h) {
+    this.gpath.selectAll("path").filter(c => c.p === p).classed("highlight", h);
+  }
+  
+  setBaseline(b, no_transition) {
+    this.baseline = b;
+    this.updateYCenter();
+    
+    if (no_transition) return;
+    
+    this.clearLabels();
+
+    this.gpath
+      .selectAll("path")
+      .transition().duration(500).ease(d3.easeQuad)
+      .attr("d", this.drawLine);
+    
+    // TODO: move table outside
+    this.table
+      .selectAll("tr")
+      .select(".button")
+      .classed("selected", p => p === b.p);
+
+    // Analytics event
+    // if (analyticsEnabled && b.p) { pushPhoneTag("baseline_set", b.p); }
+  }
+
 
   // TODO: move to hooks
   // doc.select("#inspector").on("click", function () {

@@ -1,4 +1,4 @@
-import avgCurves from "./avgCurves";
+import avgCurves from "helpers/avgCurves";
 
 export default function getAverage({ avg, activeCurves, channels }) {
   // TODO: avg = isAverage (probably)

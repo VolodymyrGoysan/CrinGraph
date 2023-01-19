@@ -1,6 +1,6 @@
 import { useEffect } from "react";
 import Equalizer from "lib/equalizer";
-import avgCurves from "../helpers/avgCurves";
+import avgCurves from "helpers/avgCurves";
 
 function useExtra(config) {
   const equalizer = new Equalizer();

@@ -46,7 +46,7 @@ const GraphTool = ({
     handleTouchEndTutorialButton,
   } = useFrequencyRangesTutorial(config);
 
-  usePhones();
+  usePhones(config);
 
   return (
     <div
