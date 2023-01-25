@@ -1,6 +1,8 @@
-import { useState } from 'react';
+import { useContext, useState } from 'react';
+import ConfigContext from '../configContext';
 
-function useFrequencyRangesTutorial(config) {
+function useFrequencyRangesTutorial() {
+  const config = useContext(ConfigContext);
   const [activeDefinition, setActiveDefinition] = useState(null);
   const [hoveredDefinition, setHoveredDefinition] = useState(null);
   const tutorialActive = !!activeDefinition;
@@ -20,7 +22,9 @@ function useFrequencyRangesTutorial(config) {
       disableZoom();
 
       // Analytics event
-      // if (analyticsEnabled) { pushEventTag("tutorial_activated", targetWindow, def.name); }
+      if (config.analyticsEnabled) {
+        // pushEventTag("tutorial_activated", targetWindow, def.name);
+      }
     } else {
       disableActiveTutorial();
     }

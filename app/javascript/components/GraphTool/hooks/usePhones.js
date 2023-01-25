@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-// import axios from 'axios';
+import axios from 'axios';
 
 import { mean, min, selectAll, select, merge, curveNatural, curveCardinal, range, max, interpolateNumber } from 'd3';
 
@@ -52,8 +52,8 @@ function usePhones(config) {
   ] = useState([]);
   const [
     phonesList,
-    // setPhonesList
-  ] = useState([]); // TODO: ? load through props
+    setPhonesList
+  ] = useState([]);
   const [
     activePhones,
     setActivePhones,
@@ -78,16 +78,15 @@ function usePhones(config) {
   const keyExt = LR.length === 1 ? 16 : 0;
   const keyLeft = keyExt ? 0 : sampnums.length > 1 ? 11 : 0;
   let yCenter = 60;
-  let phoneNumber = 0; // I'm so sorry it just happened
-  // Find a phone id which doesn't have a color conflict with pins
+  let phoneNumber = 0; // Find a phone id which doesn't have a color conflict with pins
   let nextPN = 0; // Cached value; invalidated when pinned headphones change
   let smoothScale = 0.01 * (config.scaleSmoothing || 1);
 
-  // const loadPhonesList = () => {
-  //   axios
-  //     .get('/units.json')
-  //     .then(({ data }) => setPhonesList(data));
-  // };
+  const loadPhonesList = () => {
+    axios
+      .get('/units.json')
+      .then(({ data }) => setPhonesList(data));
+  };
 
   const frequencyValues = buildFrequencyValues();
 
@@ -268,9 +267,6 @@ function usePhones(config) {
     elt.on("mouseover", h(true)).on("mouseout", h(false));
   }
 
-
-  
-
   function asPhoneObj(b, p, isInit, inits) {
     if (!isInit) {
       isInit = () => false;
@@ -365,8 +361,6 @@ function usePhones(config) {
     normalizePhone(phone);
     graphBox.updatePaths();
   }
-
-  
 
   function addColorPicker(svg) {
     svg.attr("viewBox", "0 0 9 5.3");
@@ -1088,7 +1082,6 @@ function usePhones(config) {
     return true;
   }
 
-
   function showPhone(phone, exclusive, suppressVariant, trigger) {
     if (phone.isTarget && activePhones.indexOf(phone) !== -1) {
       removePhone(phone);
@@ -1165,15 +1158,47 @@ function usePhones(config) {
     }
   }
 
+  function setBrand(b, exclusive) {
+    let phoneSel = select(".graphtool").select("#phones").selectAll("div.phone-item");
+    let incl = currentBrands.indexOf(b) !== -1;
+    let hasBrand = (p, b) => p.brand === b || p.collab === b;
+
+    if (exclusive || currentBrands.length === 0) {
+      currentBrands.forEach(br => br.active = false);
+
+      if (incl) {
+        currentBrands = [];
+        phoneSel.style("display", null);
+        phoneSel.select("span").text(p => p.fullName);
+      } else {
+        currentBrands = [b];
+        phoneSel.style("display", p => hasBrand(p, b) ? null : "none");
+        phoneSel.filter(p => hasBrand(p, b)).select("span").text(p => p.phone);
+      }
+    } else {
+      if (incl) return;
+      if (currentBrands.length === 1) {
+        phoneSel.select("span").text(p => p.fullName);
+      }
+
+      currentBrands.push(b);
+      phoneSel.filter(p => hasBrand(p, b)).style("display", null);
+    }
+
+    if (!incl) b.active = true;
+    // brandSel.classed("active", br => br.active);
+  }
+
   useEffect(() => {
-    // loadPhonesList();
+    loadPhonesList();
 
     console.log(phonesList);
 
     let brandSel = select(".graphtool")
       .select("#brands")
       .selectAll()
-      .data(brands).join("div")
+      .data(brands)
+      .join("div")
       .text(b => b.name + (b.suffix ? " " + b.suffix : ""))
       .on("mousedown", () => { /* d3.event.preventDefault() */ })
       // .on("click", p => setBrand(p, !d3.event.ctrlKey))
@@ -1253,37 +1278,6 @@ function usePhones(config) {
     inits.filter(Boolean).map(p => (
       p.copyOf ? showVariant(p.copyOf, p, initMode) : showPhone(p, 0, 1, initMode)
     ));
-
-    function setBrand(b, exclusive) {
-      let phoneSel = select(".graphtool").select("#phones").selectAll("div.phone-item");
-      let incl = currentBrands.indexOf(b) !== -1;
-      let hasBrand = (p, b) => p.brand === b || p.collab === b;
-
-      if (exclusive || currentBrands.length === 0) {
-        currentBrands.forEach(br => br.active = false);
-
-        if (incl) {
-          currentBrands = [];
-          phoneSel.style("display", null);
-          phoneSel.select("span").text(p => p.fullName);
-        } else {
-          currentBrands = [b];
-          phoneSel.style("display", p => hasBrand(p, b) ? null : "none");
-          phoneSel.filter(p => hasBrand(p, b)).select("span").text(p => p.phone);
-        }
-      } else {
-        if (incl) return;
-        if (currentBrands.length === 1) {
-          phoneSel.select("span").text(p => p.fullName);
-        }
-
-        currentBrands.push(b);
-        phoneSel.filter(p => hasBrand(p, b)).style("display", null);
-      }
-
-      if (!incl) b.active = true;
-      brandSel.classed("active", br => br.active);
-    }
 
     // let phoneSearch = new Fuse(
     //     allPhones,
@@ -1389,6 +1383,10 @@ function usePhones(config) {
     });
   
   }, []);
+
+  return {
+    phonesList,
+  }
 }
 
 export default usePhones;

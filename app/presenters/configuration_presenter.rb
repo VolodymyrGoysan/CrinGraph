@@ -45,6 +45,8 @@ class ConfigurationPresenter < BasePresenter
   )
 
   def accessories
+    return if configuration.accessories.blank?
+
     ActionText::Content
       .new(configuration.accessories.body.to_html)
       .to_s

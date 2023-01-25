@@ -5,6 +5,7 @@ class ApplicationController < ActionController::Base
   def current_account
     @current_account ||= current_user || User.first
     # @current_account = User.first || User.new
+    # TODO: get user from subdomain
   end
 
   def current_configuration

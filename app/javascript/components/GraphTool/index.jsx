@@ -1,20 +1,15 @@
 import React from 'react';
 import { string, bool, number, shape, arrayOf } from 'prop-types';
 
+import ConfigContext from './configContext';
 import PanelContainer from './nested/PanelContainer';
 import PrimaryPanel from './nested/PrimaryPanel';
-import SecondaryPanel from './nested/secondary-panel';
+import SecondaryPanel from './nested/SecondaryPanel';
 import HiddenIcons from './nested/HiddenIcons';
 import EqOverlay from './nested/EqOverlay';
-import GraphBox from './nested/GraphBox';
-import ManageTable from './nested/ManageTable';
-import Accessories from './nested/Accessories';
-import ExternalLinks from './nested/ExternalLinks';
-
 import usePhones from './hooks/usePhones';
 import useFullscreen from './hooks/useFullscreen';
 import usePanelFocusChange from './hooks/usePanelFocus';
-import useFrequencyRangesTutorial from './hooks/useFrequencyRangesTutorial';
 
 import './styles.scss';
 
@@ -36,73 +31,39 @@ const GraphTool = ({
   } = useFullscreen(config)
 
   const {
-    tutorialActive,
-    disableActiveTutorial,
-    hoveredTutorialDefinition,
-    activeTutorialDefinition,
-    handleClickTutorialButton,
-    handleMouseOverTutorialButton,
-    handleMouseOutTutorialButton,
-    handleTouchEndTutorialButton,
-  } = useFrequencyRangesTutorial(config);
-
-  usePhones(config);
+    phonesList,
+  } = usePhones(config);
 
   return (
-    <div
-      className="graphtool-container"
-      data-expandable={dataExpandable}
-      data-graph-frame={dataGraphFrame}
-    >
-      <div className="graphtool">
-        <HiddenIcons />
+    <ConfigContext.Provider value={config}>
+      <div
+        className="graphtool-container"
+        data-expandable={dataExpandable}
+        data-graph-frame={dataGraphFrame}
+      >
+        <div className="graphtool">
+          <HiddenIcons />
 
-        <PanelContainer focusedPanel={focusedPanel}>
-          <PrimaryPanel
-            tutorialActive={tutorialActive}
-          >
-            <GraphBox
-              altStickyGraph={config.altStickyGraph}
-              altAnimated={config.altAnimated}
-              altTutorial={config.altTutorial}
-              labelPosition={config.labelPosition}
-              normalizationDb={config.normalizationDb}
-              normalizationHz={config.normalizationHz}
-              darkModeAllowed={config.darkModeAllowed}
-              expandable={config.expandable}
-              onGraphBoxClick={togglePrimarySecondaryFocus}
+          <PanelContainer focusedPanel={focusedPanel}>
+            <PrimaryPanel
+              togglePrimarySecondaryFocus={togglePrimarySecondaryFocus}
               toggleExpandCollapse={toggleExpandCollapse}
-              disableActiveTutorial={disableActiveTutorial}
-              activeTutorialDefinition={activeTutorialDefinition}
-              hoveredTutorialDefinition={hoveredTutorialDefinition}
-              // onDownload={onDownload}
+              externalLinks={externalLinks}
+              focusSecondary={focusSecondary}
             />
 
-            <ManageTable
-              altTutorial={config.altTutorial}
-              activeTutorialDefinition={activeTutorialDefinition}
-              onMobileHelperClick={focusSecondary}
-              onClickTutorialButton={handleClickTutorialButton}
-              onMouseOverTutorialButton={handleMouseOverTutorialButton}
-              onMouseOutTutorialButton={handleMouseOutTutorialButton}
-              onTouchEndTutorialButton={handleTouchEndTutorialButton}
+            <SecondaryPanel
+              focusedPanel={focusedPanel}
+              focusPrimary={focusPrimary}
+              focusSecondary={focusSecondary}
+              phonesList={phonesList}
             />
 
-            <Accessories content={config.accessories} />
-            
-            <ExternalLinks links={externalLinks} />
-          </PrimaryPanel>
-
-          <SecondaryPanel
-            focusedPanel={focusedPanel}
-            focusPrimary={focusPrimary}
-            focusSecondary={focusSecondary}
-          />
-
-          <EqOverlay />
-        </PanelContainer>
+            <EqOverlay />
+          </PanelContainer>
+        </div>
       </div>
-    </div>
+    </ConfigContext.Provider>
   )
 }
 

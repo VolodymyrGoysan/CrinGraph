@@ -1,28 +1,32 @@
-import React from 'react';
+import React, { useContext } from 'react';
 
 import useTheme from '../hooks/useDarkTheme';
 import useCopyUrlButton from '../hooks/useCopyUrlButton';
 
 import { TUTORIAL_DEFINITIONS } from '../constants';
+import ConfigContext from '../configContext';
 
 const GraphBox = ({
-  altStickyGraph,
-  altAnimated,
-  altTutorial,
-  labelPosition,
-  normalizationDb,
-  normalizationHz,
-  darkModeAllowed,
   onDownload,
   onGraphBoxClick,
-  expandable,
   toggleExpandCollapse,
   activeTutorialDefinition,
   hoveredTutorialDefinition,
   disableActiveTutorial,
 }) => {
+  const config = useContext(ConfigContext);
   const { toggleTheme } = useTheme();
   const { copyUrlButtonClass, onCopyUrlButtonClick } = useCopyUrlButton();
+  const {
+    altStickyGraph ,
+    altAnimated,
+    altTutorial,
+    labelPosition,
+    normalizationDb,
+    normalizationHz,
+    darkModeAllowed,
+    expandable,
+  } = config;
 
   return (
     <div

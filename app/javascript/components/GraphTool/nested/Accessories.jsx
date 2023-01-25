@@ -1,16 +1,14 @@
-import { string } from 'prop-types';
-import React from 'react';
+import React, { useContext } from 'react';
+import ConfigContext from '../configContext';
 
-function Accessories({ content }) {
+function Accessories() {
+  const { accessories } = useContext(ConfigContext);
+
   return (
     <div className="accessories">
-      <div dangerouslySetInnerHTML={{ __html: content }} />
+      <div dangerouslySetInnerHTML={{ __html: accessories }} />
     </div>
   );
-}
-
-Accessories.propTypes = {
-  content: string,
 }
 
 export default Accessories;

@@ -3,7 +3,7 @@ class UnitsController < ApplicationController
   before_action :set_current_users_unit, only: %i[show edit update destroy]
 
   def index
-    @units = Unit.where(user_id: @current_account.id)
+    @units = Unit.where(user_id: current_account.id).includes(:variants)
   end
 
   def show
